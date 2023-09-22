@@ -8,6 +8,11 @@ def process_array(num, arr):
     print("\nProcessing Array({}): \n\n".format(num))
     print(arr)
     print("\nOdds output:\n")
+    odd= [str(a) for a in arr if a % 2 != 0]
+    
+    # Print odd numbers as a single line
+    print(", ".join(odd))
+    #zm254 - 09/21/2023
     # Note: use the arr variable; don't directly refer to a1-a4 variables
     # TODO add necessary print statement to output only the odd values (hint, best if shown as a single line)
     
