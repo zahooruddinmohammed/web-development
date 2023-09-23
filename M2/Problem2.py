@@ -5,7 +5,7 @@ a4 = [10.01, -12.22, 0.23, 19.20, -5.13, 3.12]
 
 
 def process_array(num, arr):
-    print("\nProcessing Array({}): \n\n".format(num))
+    print("\nProcessing Array({}): \n".format(num))
     print(arr)
     total = "%.2f" % sum(arr) #creating total variable where it takes float value where it gets the sum of array
     #zm254-22/09/2023
