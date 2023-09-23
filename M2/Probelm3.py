@@ -12,7 +12,9 @@ def process_array(num, arr):
     for x in arr:
         if ((isinstance(x,float) or (isinstance(x,int)))   and (x)> 0):
             pos.append(x)
-    
+    #creatig for loop in which using isinstance function to get float or int with or operator
+    #using operation "and" to get 2nd condition "">0"
+    #in the end using append operation to add it to the list
     print(pos)
     #zm254-09/22/23
     # Note: use the arr variable; don't directly refer to a1-a4 variables
