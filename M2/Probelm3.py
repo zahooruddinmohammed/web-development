@@ -8,6 +8,13 @@ def process_array(num, arr):
     print("\nProcessing Array({}): \n\n".format(num))
     print(arr)
     print("\nPositive Output:\n")
+    pos =[]
+    for x in arr:
+        if ((isinstance(x,float) or (isinstance(x,int)))   and (x)> 0):
+            pos.append(x)
+    
+    print(pos)
+    #zm254-09/22/23
     # Note: use the arr variable; don't directly refer to a1-a4 variables
     # TODO add new code here to print the desired result
     # TODO include the type() of the output data to ensure the result is positive AND the same datatype as the input value
