@@ -7,7 +7,8 @@ a4 = [10.01, -12.22, 0.23, 19.20, -5.13, 3.12]
 def process_array(num, arr):
     print("\nProcessing Array({}): \n".format(num))
     print(arr)
-    total = "%.2f" % sum(arr) #creating total variable where it takes float value where it gets the sum of array
+    total = "%.2f" % sum(arr) #creating total variable where 
+    #it takes float value where it gets the sum of array
     #zm254-22/09/2023
     # Note: use the arr variable; don't directly refer to a1-a4 variables
     # TODO add necessary code here for sum; every number must have two decimal places shown (i.e., 0.10, 0.01, 0.00)
