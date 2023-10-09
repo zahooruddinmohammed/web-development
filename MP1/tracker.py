@@ -99,7 +99,6 @@ def process_update(index):
 
 def update_task(index: int, name: str, description:str, due: str):
     """ Updates the name, description , due date of a task found by index if an update to the property was provided """
-    
     #zm254-10/06/23
     #summary: To start with i did the validation for index out of bound scenario by writing a if condition and 
     #checking if the length of tasks-1 is less than index
@@ -143,7 +142,7 @@ def mark_done(index):
         print(f"index out of bounds,please enter a index less or equal to {len(tasks)}and greater than 0")
         return
     if tasks[index]['done']==False:                 #if it's not currently marked as done, record the current datetime as the value (don't just set it as true)
-        tasks[index]['done']== True
+        tasks[index]['done'] = True
         now=datetime.now()                          #datetime object containing current date and time
         dt_string = now.strftime("%m%d%y %H:%M:%S") #mm/dd/yy H:M:s
         tasks[index]['lastActivity']=dt_string      #if its not done,record the current datetime as the value
@@ -152,8 +151,9 @@ def mark_done(index):
         print("task is already completed")          #if it is currently done, print a message saying it's already been completed
     
     #summary:checking for the index out of bounds scenarios like the usual way like how i have done in the previous functions.
-    #for the main function i am using a if else condition in which i am checking if done is equal to true for the given index,if the condition passes
-    #then i am marketing done as true and updating the lastActivity to current datetime by using the datetime class fromdatetime module and formatting the datetime
+    #for the main function i am using a if else condition in which i am checking if done is equal to true for the given index,
+    #if the condition passes then i am marketing done as true and
+    #updating the lastActivity to current datetime by using the datetime class fromdatetime module and formatting the datetime
     #acc to our format req format and t am also printing the task was done successfully message.
     #in the else i am printing the message task is already completed.
     #zm254-10/06/2023
@@ -168,16 +168,16 @@ def view_task(index):
     task = {                                        #<-- replace or update the assignment of this variable, I just used an empty dict so it would run without changes
         "name":tasks[index]['name'],
         "due": tasks[index]['due'],
-        "lastActivity":tasks[index]['lastActivty'],
-        "description":task[index]['description'],
-        "done": task[index]['done']
+        "lastActivity":tasks[index]['lastActivity'],
+        "description":tasks[index]['description'],
+        "done": tasks[index]['done']
     }
                                                     #utilize the given print statement when a task is found
     print(f"""
           [{'x'if task['done']else ''}]
           task: {task['name']}\n
           Description: {task['description']}\n
-          Last Activty: {task['LastActivity']}\n
+          Last Activity: {task['lastActivity']}\n
           Due: {task['due']}\n
           Complete: {task['done']if task['done']else '-'}\n
         """.replace(' ',' '))
@@ -197,26 +197,25 @@ def delete_task(index):
     tasks.remove(tasks[index])
     print("task deleted successfully")
     #zm254-10/06/2023
-    #summary:To start with i am checking the index out of bound senarios in the usual was (like previous functions)
+    #summary:To start with i am checking the index out of bound senarios in the usual was(like previous functions)
     #to remove a particular task i am using remove() method
     #- the remove() method takes a single element as an argument and removes it from the list.
-    #in the end printing for calling the save() function and printing  a success message if the task is deleted successfully.
+    #in the end printing for calling the save() function and
+    #printing  a success message if the task is deleted successfully.
     save()                                          #make sure save() is still called last in this function
 
 def get_incomplete_tasks():
     """ prints a list of tasks that are not done """
     #zm254-10/06/23
-    #summary:I am calling the load() function for loading the data in task 
-    #later in the for loop we can check a condition if any task isnt having ant task['done']= true
+    #summary:
+    #in the for loop we can check a condition if any task isnt having ant task['done']= true
     #then we are appendinf those tasking to the empty list
     #which is _tasks = [] which is predeclared in template.
     #list is being passed to list_task functions where the print stmt iscalled for this.
-    #passing print_flag =Flase to load() function because using it as a condition to not print the data 
-    #which is being print in the load() function
     _tasks = []
-    load(print_flag=False)
+    
     for task in tasks:
-        if not task['done']:
+        if task['done'] == False:
             _tasks.append(task)                     # <-- this is a placeholder to populate based on the above requirements
     list_tasks(_tasks)                              # pass that list into list_tasks()
 
@@ -224,17 +223,14 @@ def get_overdue_tasks():
     """ prints a list of tasks that are over due completion (not done and expired) """
     #zm254-10/06/2023
     #summary: using datetime class from datetime module for compating with the due time to checking if the task is overdue ornot.
-    #later calling in the load() function for loadinf the data in to our task.
     #appending those tasks which satisfy the if condtion to emplty list of _tasks.
     #overdue data in my list _tasks, which i am passing to list_taks.
     #list_taks function has a print stmt which is printing the result for this function
-    #in the end passinf print_flag = false to load() function because using it as a condition to not print data the data which is print in the load() function.
     now= datetime.now()                                                 #datetime object containting current date and time
-    _tasks = []                                                          #<-- this is a placeholder to populate based on the above requirements
-    load(print_flag=False)
+    _tasks = []                                                       #<-- this is a placeholder to populate based on the above requirements
     for task in tasks:
         if task['done']== False and str_to_datetime(task['due'])<now:   #generate a list of tasks where the due date is older than "now" and that are not complete (i.e., not done)
-             _tasks.appned(task)                                        #pass that list into list_tasks()
+             _tasks.append(task)                                        #pass that list into list_tasks()
     list_tasks(_tasks)
 
 def get_time_remaining(index):
@@ -248,7 +244,7 @@ def get_time_remaining(index):
     #if this passes an print stmt is passed statingthe remaining time by sub the due date by curr time
     #2ifelse condtion same logic having 2 condition but int he later checking 
     #the due date of the tast for the fien index is >= curren time
-    #if passed printing the overtime by sub the curr time by due date and time.
+    #creating new variable to store due time and also creating remaining time to subtract from due time to current time
     #if both above if else fails then the last is executed, meaning task is completed
     now=datetime.now()#datetime object containing current date and time.
     task=tasks[index] #get the task by index -task[index]
@@ -257,10 +253,12 @@ def get_time_remaining(index):
         return                                                          #get the days, hours, minutes, seconds between the due date and now
                                                                         # display the remaining time via print in a clear format showing X days, X hours, X minutes, X seconds (time components must be clearly separated)
     if tasks[index]['done']==False and str_to_datetime(tasks[index]['due'])>=now:
-        print(f"the remaining time for this task is {str_to_datetime(task[index]['due']- now)}")
+        due_date = str_to_datetime(tasks[index]['due'])
+        remaining_time = due_date - now
+        print(f"the remaining time for this task is {remaining_time}")
                                                                         # if the due date is in the past print out how many days, hours, minutes, seconds the task is overdue (clearly note that it's overdue, values should be positive)
     elif tasks[index]['done']== False and str_to_datetime(tasks[index]['due'])<now:
-        print(f"the task is overdue by {now - str_to_datetime(task[index]['due'])}")
+        print(f"the task is overdue by {now - str_to_datetime(tasks[index]['due'])}")
     else:
         print("the task is already completed")
 
