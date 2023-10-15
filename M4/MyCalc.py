@@ -142,7 +142,8 @@ if __name__ == '__main__':
         #         r= calc.sub(nums[0].strip(),nums[1].strip())
         #         print("Result is "+ str())
             elif "*" in iSTR or "x" in iSTR:#this cond runs if there is 'x' or '*' symbol
-                nums = iSTR.split("*") if "*" in iSTR else iSTR.split("x") # the eq is split using .split() method into 2 parts keeping 'x' or '*' as reference
+                nums = iSTR.split("*") if "*" in iSTR else iSTR.split("x") 
+                # the eq is split using .split() method into 2 parts keeping 'x' or '*' as reference
                 #r is o/p if the eq
                 #nums has the 2 numbers using which the mult has to be performed
                 #calling individually from array num[0] and num[1] and striping to remove the all spaces in that string
@@ -158,12 +159,16 @@ if __name__ == '__main__':
                 r= calc.div(nums[0].strip(),nums[1].strip())
                 print("the result is"+ str(r))
             
-            #doing it last so negative can be handled
+            #doing it last so negative can be 
             elif "-" in iSTR:# this condition runs if there is a '-' symbol in the input equation
-                iSTR= iSTR.replace(" "," ")# Removing all the white spaces from the string to remove complications while subtracting negative numbers. 
-                if "--" in iSTR: # Here we are checking for if subtrahend is a negative number by checking if there is "--" in the string
-                    nums = iSTR.split("--")# if the above condition passes then we are spliting the string using "--" as the refrence
-                    nums[-1] = f"-{nums[-1]}"# since in the above line we removed the negative sign for the subtrahend, now we are adding it back again manually
+                iSTR= iSTR.replace(" "," ")
+            # Removing all the white spaces from the string to remove complications while subtracting negative numbers. 
+                if "--" in iSTR: 
+                # Here we are checking for if subtrahend is a negative number by checking if there is "--" in the string
+                    nums = iSTR.split("--")
+                    # if the above condition passes then we are spliting the string using "--" as the refrence
+                    nums[-1] = f"-{nums[-1]}"
+            # since in the above line we removed the negative sign for the subtrahend, now we are adding it back again manually
                 else:
                     nums = iSTR.rsplit("-",1)
                     #r is o/p if the eq

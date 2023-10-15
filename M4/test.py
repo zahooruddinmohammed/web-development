@@ -23,7 +23,8 @@ def test_many_add():
 
     },]
     for d in data:
-        #checking if the test cases match and pass with our add function by passing the list values to the add function
+        #checking if the test cases match and pass with our add function by passing the list values 
+        # to the add function
         #using assertion to debug the code
         assert calc.add(d["a"],d["b"])== int (d["r"])
 
@@ -161,7 +162,7 @@ def my_calc_ans_sub():
         "negative": True,
         "r":"1"
     },]
-
+#zm254-10/13/23
 def test_data_ans_sub(my_calc_ans_sub):
     #zm254-10/13/23
     for d in my_calc_ans_sub:
