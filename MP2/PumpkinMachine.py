@@ -172,7 +172,12 @@ class PumpkinMachine:
 
     def calculate_cost(self):
         # TODO add the calculation expression/logic for the inprogress_pumpkin
-        return 10000  # <-- this needs to be changed
+        #zm254-10/18/23
+        self.cost =0 
+        #adding the input item cost from the user for every choice selected
+        for item in self.inprogress_pumpkin:
+            self.cost += item.cost
+        return round(self.cost,2)  #rounding to 2decimals
 
     def run(self):
         try:
