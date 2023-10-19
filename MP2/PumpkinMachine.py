@@ -216,14 +216,19 @@ class PumpkinMachine:
             sys.exit()
         # TODO items below
         # Note: Stage/category refers to the enum towards the top. Make sure error messages are very clear to the user
-        # handle OutOfStockException
-            # show an appropriate message of what stage/category was out of stock
-        # handle NeedsCleaningException
-            # prompt user to type "clean" to trigger clean_machine()
+        except OutOfStockException:# handle OutOfStockException
+            #zm254-10/19/23
+            print("the selected option is out of stock.try again")# show an appropriate message of what stage/category was out of stock
+        except NeedsCleaningException:# handle NeedsCleaningException
+            #zm254-10/19/23
+            choice = input("the machine needs to be cleaned!type yes to clean\n")# prompt user to type "clean" to trigger clean_machine()
             # any other input is ignored
-            # print a message whether or not the machine was cleaned
-        # handle InvalidChoiceException
-            # show an appropriate message of what stage/category was the invalid choice was in
+            if choice.lower()=="yes":
+                print("The machine has been cleaned, you can continue")# print a message whether or not the machine was cleaned
+                self.clean_machine()        
+        except InvalidChoiceException:# handle InvalidChoiceException
+            #zm254-10/19/23
+            print("Youve entered an invalid choice.Please choose from the given options")# show an appropriate message of what stage/category was the invalid choice was in
         # handle ExceededRemainingChoicesException
             # show an appropriate message of which stage/category was exceeded
             # move to the next stage/category
