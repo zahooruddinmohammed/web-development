@@ -1,7 +1,7 @@
 from enum import Enum
 import sys
 from PumpkinMachineExceptions import ExceededRemainingChoicesException, InvalidChoiceException, InvalidStageException, NeedsCleaningException, OutOfStockException
-from PumpkinMachineExceptions import InvalidPaymentException
+from PumpkinMachineExceptions import InvalidPaymentException, InvalidCombinationException, NoItemChosenException
 
 
 class Usable:
@@ -51,7 +51,31 @@ class PumpkinMachine:
     USES_UNTIL_CLEANING = 15
     MAX_STENCILS = 3
     MAX_EXTRAS = 3
+    def __init__(self):
+        self.pumpkins = [Pumpkin(name="Mini Pumpkin", cost=1),
+                    Pumpkin(name="Small Pumpkin", cost=2),
+                    Pumpkin(name="Medium Pumpkin", cost=2.5),
+                    Pumpkin(name="Large Pumpkin", cost=3)]
+        self.face_stencils = [FaceStencil(name="Happy Face", quantity=10, cost=1),
+                        FaceStencil(name="Scream Face", quantity=10, cost=1),
+                        FaceStencil(name="Toothy Face", quantity=10, cost=1),
+                        FaceStencil(name="Spooky Face", quantity=10, cost=1)]
+        self.extras = [Extra(name="Small Candle", quantity=10, cost=.25),
+                Extra(name="LED Candle", quantity=10, cost=.25),
+                Extra(name="Spooky Sound Effects", quantity=10, cost=1.25),
+                Extra(name="Sticker Pack", quantity=10, cost=1.00),
+                Extra(name="Paint Kit", quantity=10, cost=3),
+                Extra(name="Dry Ice", quantity=10, cost=.25),
+                Extra(name="Googly Eyes", quantity=10, cost=.25),
+                Extra(name="Glitter", quantity=10, cost=.25)]
 
+        # variables
+        self.remaining_uses = PumpkinMachine.USES_UNTIL_CLEANING
+        self.remaining_stencils = PumpkinMachine.MAX_STENCILS
+        self.remaining_extras = PumpkinMachine.MAX_EXTRAS
+        self.total_sales = 0
+        self.total_products = 0
+    
     pumpkins = [Pumpkin(name="Mini Pumpkin", cost=1),
                 Pumpkin(name="Small Pumpkin", cost=2),
                 Pumpkin(name="Medium Pumpkin", cost=2.5),
@@ -143,21 +167,27 @@ class PumpkinMachine:
         self.currently_selecting = STAGE.FaceStencil
 
     def handle_face_stencil_choice(self, _face_stencil):
+        if not self.inprogress_pumpkin:
+            raise InvalidCombinationException
         if _face_stencil == "next":
             self.currently_selecting = STAGE.Extra
         else:
             self.pick_face_stencil(_face_stencil)
 
-    def handle_extra_choice(self, _extra):
-        if _extra == "done":
+    def handle_extra_choice(self, extra):
+        if not self.inprogress_pumpkin:
+            raise InvalidCombinationException
+        if extra == "done" and any(item in self.face_stencils + self.extras for item in self.inprogress_pumpkin)
             self.currently_selecting = STAGE.Pay
+        elif extra == "done":
+            raise NoItemChosenException
         else:
             self.pick_extras(_extra)
 
     def handle_pay(self, expected, total):
         if self.currently_selecting != STAGE.Pay:
             raise InvalidStageException
-        if total == str(expected):
+        if total== f"{expected:.2f}":
             print("Thank you! Enjoy your Pumpkin and Happy Halloween!")
             self.total_products += 1
             self.total_sales += expected  # <-- TODO increment only if successful
@@ -184,25 +214,42 @@ class PumpkinMachine:
             if self.currently_selecting == STAGE.Pumpkin:
                 pumpkin = input(
                     f"What type of pumpkin would you like {', '.join(list(map(lambda c:c.name.lower(), filter(lambda c: c.in_stock(), self.pumpkins))))}?\n")
-                self.handle_pumpkin_choice(pumpkin)
                 self.print_current_pumpkin()
+                self.currently_selecting=STAGE.FaceStencil
             elif self.currently_selecting == STAGE.FaceStencil:
                 stencil = input(
                     f"What type of face stencil would you like {', '.join(list(map(lambda f:f.name.lower(), filter(lambda f: f.in_stock(), self.face_stencils))))}? Or type next.\n")
-                self.handle_face_stencil_choice(stencil)
-                self.print_current_pumpkin()
+                try:
+                    self.handle_face_stencil_choice(stencil)
+                except ExceededRemainingChoicesException:
+                    print("Sorry! You've exceeded the maximum no of stencil that you can select,please choose a extra")
+                    self.print_current_pumpkin()
+                    self.currently_selecting =STAGE.Extra
             elif self.currently_selecting == STAGE.Extra:
                 extra = input(
                     f"What extras would you like {', '.join(list(map(lambda t:t.name.lower(), filter(lambda t: t.in_stock(), self.extras))))}? Or type done.\n")
-                self.handle_extra_choice(extra)
-                self.print_current_pumpkin()
+                try:
+                    self.handle_extra_choice(extra)
+                except ExceededRemainingChoicesException:
+                    print("Sorry! You've exceeded the maximum number of extras;proceeding to payment portal")
+                    self.print_current_pumpkin()
+                    self.currently_selecting = STAGE.Pay
+                except NoItemChosenException:
+                    print("please choose at least one face_stencil or extra.")
+                    self.currently_selecting = STAGE.FaceStencil
+                
+
             elif self.currently_selecting == STAGE.Pay:
                 expected = self.calculate_cost()
                 # TODO show expected value as currency format
                 # TODO require total to be entered as currency format
                 total = input(
-                    f"Your total is {expected}, please enter the exact value.\n")
-                self.handle_pay(expected, total)
+                    f"Your total is {expected:.2f}, please enter the exact value.\n")
+                try:
+                    self.handle_pay(expected, total)
+                except InvalidPaymentException:
+                    print("entered wrong amount. Please try again")
+                    self.run()
 
                 choice = input("What would you like to do? (order or quit)\n")
                 if choice == "quit":
@@ -229,8 +276,9 @@ class PumpkinMachine:
         except InvalidChoiceException:# handle InvalidChoiceException
             #zm254-10/19/23
             print("Youve entered an invalid choice.Please choose from the given options")# show an appropriate message of what stage/category was the invalid choice was in
+            self.run()
         # handle ExceededRemainingChoicesException
-            # show an appropriate message of which stage/category was exceeded
+            #zm254-10/19/23
             # move to the next stage/category
         # handle InvalidPaymentException
             # show an appropriate message
