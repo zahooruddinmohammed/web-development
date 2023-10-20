@@ -1,7 +1,7 @@
 from enum import Enum
 import sys
 from PumpkinMachineExceptions import ExceededRemainingChoicesException, InvalidChoiceException, InvalidStageException, NeedsCleaningException, OutOfStockException
-from PumpkinMachineExceptions import InvalidPaymentException, InvalidCombinationException, NoItemChosenException
+from PumpkinMachineExceptions import InvalidPaymentException, InvalidCombinationException
 
 
 class Usable:
@@ -15,6 +15,7 @@ class Usable:
         self.cost = cost
 
     def use(self):
+        #zm254-10/20/23
         self.quantity -= 1
         if (self.quantity < 0):
             raise OutOfStockException
@@ -54,7 +55,7 @@ class PumpkinMachine:
     def __init__(self):
         self.pumpkins = [Pumpkin(name="Mini Pumpkin", cost=1),
                     Pumpkin(name="Small Pumpkin", cost=2),
-                    Pumpkin(name="Medium Pumpkin", cost=2.5),
+                    Pumpkin(name="Medium Pumpkin", cost=2.50),
                     Pumpkin(name="Large Pumpkin", cost=3)]
         self.face_stencils = [FaceStencil(name="Happy Face", quantity=10, cost=1),
                         FaceStencil(name="Scream Face", quantity=10, cost=1),
@@ -76,22 +77,6 @@ class PumpkinMachine:
         self.total_sales = 0
         self.total_products = 0
     
-    pumpkins = [Pumpkin(name="Mini Pumpkin", cost=1),
-                Pumpkin(name="Small Pumpkin", cost=2),
-                Pumpkin(name="Medium Pumpkin", cost=2.5),
-                Pumpkin(name="Large Pumpkin", cost=3)]
-    face_stencils = [FaceStencil(name="Happy Face", quantity=10, cost=1),
-                     FaceStencil(name="Scream Face", quantity=10, cost=1),
-                     FaceStencil(name="Toothy Face", quantity=10, cost=1),
-                     FaceStencil(name="Spooky Face", quantity=10, cost=1)]
-    extras = [Extra(name="Small Candle", quantity=10, cost=.25),
-              Extra(name="LED Candle", quantity=10, cost=.25),
-              Extra(name="Spooky Sound Effects", quantity=10, cost=1.25),
-              Extra(name="Sticker Pack", quantity=10, cost=1.00),
-              Extra(name="Paint Kit", quantity=10, cost=3),
-              Extra(name="Dry Ice", quantity=10, cost=.25),
-              Extra(name="Googly Eyes", quantity=10, cost=.25),
-              Extra(name="Glitter", quantity=10, cost=.25)]
 
     # variables
     remaining_uses = USES_UNTIL_CLEANING
@@ -122,7 +107,7 @@ class PumpkinMachine:
                 self.inprogress_pumpkin.append(c)
                 return
         raise InvalidChoiceException
-
+    #zm254-10/20/23
     def pick_face_stencil(self, choice):
         if self.currently_selecting != STAGE.FaceStencil:
             raise InvalidStageException
@@ -138,7 +123,7 @@ class PumpkinMachine:
                 self.remaining_uses -= 1
                 return
         raise InvalidChoiceException
-
+    #zm254-10/20/23
     def pick_extras(self, choice):
         if self.currently_selecting != STAGE.Extra:
             raise InvalidStageException
@@ -167,39 +152,34 @@ class PumpkinMachine:
         self.currently_selecting = STAGE.FaceStencil
 
     def handle_face_stencil_choice(self, _face_stencil):
-        if not self.inprogress_pumpkin:
-            raise InvalidCombinationException
         if _face_stencil == "next":
             self.currently_selecting = STAGE.Extra
         else:
             self.pick_face_stencil(_face_stencil)
 
-    def handle_extra_choice(self, extra):
-        if not self.inprogress_pumpkin:
-            raise InvalidCombinationException
-        if extra == "done" and any(item in self.face_stencils + self.extras for item in self.inprogress_pumpkin)
+    def handle_extra_choice(self, _extra):
+        if _extra == "done":
             self.currently_selecting = STAGE.Pay
-        elif extra == "done":
-            raise NoItemChosenException
+        
         else:
             self.pick_extras(_extra)
 
     def handle_pay(self, expected, total):
         if self.currently_selecting != STAGE.Pay:
             raise InvalidStageException
-        if total== f"{expected:.2f}":
+        if float(total)==expected:
             print("Thank you! Enjoy your Pumpkin and Happy Halloween!")
             self.total_products += 1
             self.total_sales += expected  # <-- TODO increment only if successful
             # print(f"Total sales so far {self.total_sales}")
+            #zm254-10/20/23
             self.reset()
         else:
             raise InvalidPaymentException
 
     def print_current_pumpkin(self):
-        print(
-            f"Current Pumpkin: {','.join([x.name for x in self.inprogress_pumpkin])}")
-
+        print(    f"Current Pumpkin: {','.join([x.name for x in self.inprogress_pumpkin])}")
+         
     def calculate_cost(self):
         # TODO add the calculation expression/logic for the inprogress_pumpkin
         #zm254-10/18/23
@@ -210,43 +190,47 @@ class PumpkinMachine:
         return round(self.cost,2)  #rounding to 2decimals
 
     def run(self):
+            
         try:
             if self.currently_selecting == STAGE.Pumpkin:
-                pumpkin = input(
-                    f"What type of pumpkin would you like {', '.join(list(map(lambda c:c.name.lower(), filter(lambda c: c.in_stock(), self.pumpkins))))}?\n")
+                pumpkin = input(f"What type of pumpkin would you like {', '.join(list(map(lambda c:c.name.lower(), filter(lambda c: c.in_stock(), self.pumpkins))))}?\n")
                 self.print_current_pumpkin()
                 self.currently_selecting=STAGE.FaceStencil
             elif self.currently_selecting == STAGE.FaceStencil:
-                stencil = input(
-                    f"What type of face stencil would you like {', '.join(list(map(lambda f:f.name.lower(), filter(lambda f: f.in_stock(), self.face_stencils))))}? Or type next.\n")
+                stencil = input(f"What type of face stencil would you like {', '.join(list(map(lambda f:f.name.lower(), filter(lambda f: f.in_stock(), self.face_stencils))))}? Or type next.\n")
                 try:
                     self.handle_face_stencil_choice(stencil)
+                    #zm254-10/20/23
+                    #if the face_Stencil is exceeded more than 3 then we are auto going to next stage after displauing error to user
+                    #change to extra stage
                 except ExceededRemainingChoicesException:
                     print("Sorry! You've exceeded the maximum no of stencil that you can select,please choose a extra")
                     self.print_current_pumpkin()
                     self.currently_selecting =STAGE.Extra
             elif self.currently_selecting == STAGE.Extra:
-                extra = input(
-                    f"What extras would you like {', '.join(list(map(lambda t:t.name.lower(), filter(lambda t: t.in_stock(), self.extras))))}? Or type done.\n")
+                extra = input(f"What extras would you like {', '.join(list(map(lambda t:t.name.lower(), filter(lambda t: t.in_stock(), self.extras))))}? Or type done.\n")
                 try:
                     self.handle_extra_choice(extra)
+                    #zm254-10/20/23
+                    #if the extras gets more than 3 error is given as output to user then auto shifts to next stage
+                    #changes to displaying total cost stage and getting paid from the user
                 except ExceededRemainingChoicesException:
                     print("Sorry! You've exceeded the maximum number of extras;proceeding to payment portal")
                     self.print_current_pumpkin()
                     self.currently_selecting = STAGE.Pay
-                except NoItemChosenException:
-                    print("please choose at least one face_stencil or extra.")
-                    self.currently_selecting = STAGE.FaceStencil
+                
                 
 
             elif self.currently_selecting == STAGE.Pay:
                 expected = self.calculate_cost()
                 # TODO show expected value as currency format
                 # TODO require total to be entered as currency format
-                total = input(
-                    f"Your total is {expected:.2f}, please enter the exact value.\n")
+                total = input(f"Your total is ${expected:.2f}, please enter the exact value.\n")
                 try:
                     self.handle_pay(expected, total)
+                    #zm254-10/20/23
+                    #if the amt entered by the user doesnt match the total amt. error msg will be printed.
+                    #user is given another chanve to enter the right amt
                 except InvalidPaymentException:
                     print("entered wrong amount. Please try again")
                     self.run()
@@ -257,26 +241,40 @@ class PumpkinMachine:
                     # use return 1 to exit
                     print("Quitting the pumpkin machine")
                     return 1
+            
         except KeyboardInterrupt:
             # quit
             print("Quitting the pumpkin machine")
             sys.exit()
         # TODO items below
         # Note: Stage/category refers to the enum towards the top. Make sure error messages are very clear to the user
+            
+            #zm254-10/20/23
+            #if any of the abov input items from the user is out of stock then error message is displaued
+            #and the user will be redireced to select diff items
         except OutOfStockException:# handle OutOfStockException
-            #zm254-10/19/23
             print("the selected option is out of stock.try again")# show an appropriate message of what stage/category was out of stock
+            
+            #zm254-10/20/23
+            #if the USES_UNTIL_CLEANING exceeds 15 then the user will be promted with needs cleanig message as the output.
+            #when the user types "clean" then "the machine as been cleaned" is shown as the output and continued with nrml activites
         except NeedsCleaningException:# handle NeedsCleaningException
-            #zm254-10/19/23
             choice = input("the machine needs to be cleaned!type yes to clean\n")# prompt user to type "clean" to trigger clean_machine()
             # any other input is ignored
             if choice.lower()=="yes":
                 print("The machine has been cleaned, you can continue")# print a message whether or not the machine was cleaned
-                self.clean_machine()        
+                self.clean_machine()
+            
+            
+            #zm254-10/20/23
+            #if ant of the above stage if the user has entered a invalidi choice the invalidChoiceException is called
+            # #and asked the user to choose again with the given option        
         except InvalidChoiceException:# handle InvalidChoiceException
             #zm254-10/19/23
-            print("Youve entered an invalid choice.Please choose from the given options")# show an appropriate message of what stage/category was the invalid choice was in
+            print("Youve entered an invalid choice.Please choose from the given options")
+            # show an appropriate message of what stage/category was the invalid choice was in
             self.run()
+        
         # handle ExceededRemainingChoicesException
             #zm254-10/19/23
             # move to the next stage/category

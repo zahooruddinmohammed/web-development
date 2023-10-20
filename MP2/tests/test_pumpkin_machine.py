@@ -2,7 +2,7 @@ import pytest
 # make sure there's an __init__.py in this test folder and that
 # the test folder is in the same folder as the mini project content
 from PumpkinMachine import PumpkinMachine
-from PumpkinMachineExceptions import InvalidCombinationException,ExceededRemainingChoicesException, InvalidChoiceException, InvalidStageException, OutOfStockException
+from PumpkinMachineExceptions import InvalidCombinationException,ExceededRemainingChoicesException, OutOfStockException
 # this is an example test showing how to cascade fixtures to build up state
 import random
 #zm254-10/20/23
@@ -30,12 +30,12 @@ def first_order(machine):
 
 @pytest.fixture
 def second_order(first_order,machine):
-    machine.handle_pumpkin_choice("Large Pumpkin")
-    machine.handle_face_stencil_choice("Spooky Face")
-    machine.handle_face_stencil_choice("Toothy Face")
+    machine.handle_pumpkin_choice("Large Pumpkin")#3
+    machine.handle_face_stencil_choice("Spooky Face")#1
+    machine.handle_face_stencil_choice("Toothy Face")#1
     machine.handle_face_stencil_choice("next")
-    machine.handle_extra_choice("LED Candle")
-    machine.handle_extra_choice("Dry Ice")
+    machine.handle_extra_choice("LED Candle")#.25
+    machine.handle_extra_choice("Dry Ice")#.25
     machine.handle_extra_choice("done")
     machine.handle_pay(machine.calculate_cost(),f"{machine.calculate_cost():.2f}")
     # machine.handle_pay(10000,"10000")
@@ -50,6 +50,7 @@ def third_order(second_order,machine):
     machine.handle_face_stencil_choice("next")
     machine.handle_extra_choice("LED Candle")
     machine.handle_extra_choice("Dry Ice")
+    machine.handle_extra_choice("done")
     machine.handle_pay(machine.calculate_cost(),f"{machine.calculate_cost():.2f}")
     return machine
 
@@ -58,7 +59,7 @@ def test_first_selection(machine):
         #zm254-10/20/23
         #order of selection needs to be correct
         #and then it checks if exception is raised if the order is not correct
-        machine.handle_face_stencil_choice("Spooky Face")
+        machine.handle_face_stencil_choice("Happy Face")
         machine.handle_extra_choice("LED Candle")
         assert False
     except InvalidCombinationException:
@@ -71,7 +72,7 @@ def test_face_stencil_instock(machine):
         machine.reset()
         tmp = machine.face_stencils[0].quantity
         machine.face_stencils[0].quantity = 0
-        machine.handle_pumpkin_choice("No pumpkin")
+        machine.handle_pumpkin_choice("Mini Pumpkin")
         machine.handle_face_stencil_choice(machine.face_stencils[0].name)
         assert False
     except OutOfStockException:
@@ -102,7 +103,7 @@ def test_max_face_stencil(machine):
         #zm254-10/20/23
         #this test case checks if the exception is raised when the user  chooses more than 3 face stencil
         machine.reset()
-        machine.handle_pumpkin_choice("No pumpkin")
+        machine.handle_pumpkin_choice("Mini Pumpkin")
         machine.handle_face_stencil_choice(machine.face_stencils[0].name)
         machine.handle_face_stencil_choice(machine.face_stencils[0].name)
         machine.handle_face_stencil_choice(machine.face_stencils[0].name)
@@ -153,19 +154,19 @@ def test_total_sales(third_order):
     #zm254-10/20/23
     #function is used for total sales
     #using fixtures
-    first_order_expected_Cost =1
-    second_order_expected_Cost =4
-    third_order_expected_Cost =2.25
+    first_order_expected_Cost =2
+    second_order_expected_Cost =5.5
+    third_order_expected_Cost =3.5
     assert third_order.total_sales == first_order_expected_Cost+second_order_expected_Cost+third_order_expected_Cost
 
 def test_total_pumpkin(third_order):
     #zm254-10/20/23
-    #used for total_burgers
-    #to check if the total_burgers is increased properly
+    #used for total_products
+    #to check if the total_products is increased properly
     #testing using fixtures
-    assert third_order.total_pumpkin == 3 
+    assert third_order.total_products == 3 
 
-    
+
 # #def test_production_line(second_order):
 #     for j in second_order.pumpkins:
 #         print(second_order.inprogress_pumpkin)

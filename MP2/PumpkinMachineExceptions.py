@@ -34,3 +34,6 @@ class InvalidStageException(Exception):  # DO NOT EDIT
 class InvalidCombinationException(Exception):
     """Raised when a topping or scoop is picked before a container"""
     pass
+class NoItemChosenException(Exception):
+    """Raised when atleast one topping or scoop isn't picked"""
+    pass
