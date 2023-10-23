@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - dev
-
+      - flask_sample
 # Your workflows jobs.
 jobs:
   build:
