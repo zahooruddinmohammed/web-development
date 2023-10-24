@@ -84,6 +84,9 @@ def test_face_stencil_instock(machine):
         assert True
 
 
+
+
+
 def test_extra_instock(machine):
     try:
         #zm254-10/20/23

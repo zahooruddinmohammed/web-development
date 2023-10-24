@@ -1,7 +1,7 @@
 from enum import Enum
 import sys
 from PumpkinMachineExceptions import ExceededRemainingChoicesException, InvalidChoiceException, InvalidStageException, NeedsCleaningException, OutOfStockException
-from PumpkinMachineExceptions import InvalidPaymentException, InvalidCombinationException
+from PumpkinMachineExceptions import InvalidPaymentException
 
 
 class Usable:
@@ -113,6 +113,8 @@ class PumpkinMachine:
             raise InvalidStageException
         if not self.inprogress_pumpkin:
             raise InvalidChoiceException("Pumpkin must be the first selection (can't add face stencils or extras without a pumpkin choice)")
+
+
 
         if self.remaining_uses <= 0:
             raise NeedsCleaningException
