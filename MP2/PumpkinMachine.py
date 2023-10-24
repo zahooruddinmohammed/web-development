@@ -111,6 +111,9 @@ class PumpkinMachine:
     def pick_face_stencil(self, choice):
         if self.currently_selecting != STAGE.FaceStencil:
             raise InvalidStageException
+        if not self.inprogress_pumpkin:
+            raise InvalidChoiceException("Pumpkin must be the first selection (can't add face stencils or extras without a pumpkin choice)")
+
         if self.remaining_uses <= 0:
             raise NeedsCleaningException
         if self.remaining_stencils <= 0:
@@ -152,11 +155,12 @@ class PumpkinMachine:
         self.currently_selecting = STAGE.FaceStencil
 
     def handle_face_stencil_choice(self, _face_stencil):
-        if _face_stencil == "next":
+        if not self.inprogress_pumpkin:
+            raise InvalidStageException
+        elif _face_stencil == "next":
             self.currently_selecting = STAGE.Extra
         else:
             self.pick_face_stencil(_face_stencil)
-
     def handle_extra_choice(self, _extra):
         if _extra == "done":
             self.currently_selecting = STAGE.Pay

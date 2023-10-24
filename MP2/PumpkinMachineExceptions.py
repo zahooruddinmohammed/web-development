@@ -30,10 +30,3 @@ class InvalidStageException(Exception):  # DO NOT EDIT
     """Raised when an action occurs in the wrong stage"""
     pass
 # DO NOT EDIT
-
-class InvalidCombinationException(Exception):
-    """Raised when a topping or scoop is picked before a container"""
-    pass
-class NoItemChosenException(Exception):
-    """Raised when atleast one topping or scoop isn't picked"""
-    pass

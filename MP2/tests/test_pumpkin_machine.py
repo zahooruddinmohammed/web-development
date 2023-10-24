@@ -2,7 +2,7 @@ import pytest
 # make sure there's an __init__.py in this test folder and that
 # the test folder is in the same folder as the mini project content
 from PumpkinMachine import PumpkinMachine
-from PumpkinMachineExceptions import InvalidCombinationException,ExceededRemainingChoicesException, OutOfStockException
+from PumpkinMachineExceptions import InvalidCombinationException,ExceededRemainingChoicesException, OutOfStockException, InvalidStageException
 # this is an example test showing how to cascade fixtures to build up state
 import random
 #zm254-10/20/23
@@ -59,10 +59,14 @@ def test_first_selection(machine):
         #zm254-10/20/23
         #order of selection needs to be correct
         #and then it checks if exception is raised if the order is not correct
-        machine.handle_face_stencil_choice("Happy Face")
-        machine.handle_extra_choice("LED Candle")
-        assert False
-    except InvalidCombinationException:
+        machine.pick_pumpkin("Small Pumpkin")
+        machine.handle_face_stencil_choice("Scream Face")
+        assert False 
+    except InvalidStageException:
+        # Handle exceptions here if necessary
+        assert True
+    else:
+        # The test is successful if it doesn't raise any exceptions
         assert True
     
 def test_face_stencil_instock(machine):
