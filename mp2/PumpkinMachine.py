@@ -76,7 +76,7 @@ class PumpkinMachine:
         self.remaining_extras = PumpkinMachine.MAX_EXTRAS
         self.total_sales = 0
         self.total_products = 0
-    
+
 
     # variables
     remaining_uses = USES_UNTIL_CLEANING
@@ -163,7 +163,7 @@ class PumpkinMachine:
     def handle_extra_choice(self, _extra):
         if _extra == "done":
             self.currently_selecting = STAGE.Pay
-        
+
         else:
             self.pick_extras(_extra)
 
@@ -184,7 +184,7 @@ class PumpkinMachine:
 
     def print_current_pumpkin(self):
         print(    f"Current Pumpkin: {','.join([x.name for x in self.inprogress_pumpkin])}")
-         
+
     def calculate_cost(self):
         # TODO add the calculation expression/logic for the inprogress_pumpkin
         #zm254-10/18/23
@@ -195,13 +195,14 @@ class PumpkinMachine:
         return round(self.cost,2)  #rounding to 2decimals
 
     def run(self):
-            
+
         try:
             if self.currently_selecting == STAGE.Pumpkin:
                 pumpkin = input(f"What type of pumpkin would you like {', '.join(list(map(lambda c:c.name.lower(), filter(lambda c: c.in_stock(), self.pumpkins))))}?\n")
-                self.print_current_pumpkin()
-                self.handle_pumpkin_choice(pumpkin)
                 
+                self.handle_pumpkin_choice(pumpkin)
+                self.print_current_pumpkin()
+
                 #self.currently_selecting=STAGE.FaceStencil
             elif self.currently_selecting == STAGE.FaceStencil:
                 stencil = input(f"What type of face stencil would you like {', '.join(list(map(lambda f:f.name.lower(), filter(lambda f: f.in_stock(), self.face_stencils))))}? Or type next.\n")
@@ -225,8 +226,8 @@ class PumpkinMachine:
                     print("Sorry! You've exceeded the maximum number of extras;proceeding to payment portal")
                     self.print_current_pumpkin()
                     #self.currently_selecting = STAGE.Pay
-                
-                
+
+
 
             elif self.currently_selecting == STAGE.Pay:
                 expected = self.calculate_cost()
@@ -248,20 +249,20 @@ class PumpkinMachine:
                     # use return 1 to exit
                     print("Quitting the pumpkin machine")
                     return 1
-            
+
         except KeyboardInterrupt:
             # quit
             print("Quitting the pumpkin machine")
             sys.exit()
         # TODO items below
         # Note: Stage/category refers to the enum towards the top. Make sure error messages are very clear to the user
-            
+
             #zm254-10/20/23
             #if any of the abov input items from the user is out of stock then error message is displaued
             #and the user will be redireced to select diff items
         except OutOfStockException:# handle OutOfStockException
             print("the selected option is out of stock.try again")# show an appropriate message of what stage/category was out of stock
-            
+
             #zm254-10/20/23
             #if the USES_UNTIL_CLEANING exceeds 15 then the user will be promted with needs cleanig message as the output.
             #when the user types "clean" then "the machine as been cleaned" is shown as the output and continued with nrml activites
@@ -271,8 +272,8 @@ class PumpkinMachine:
             if choice.lower()=="yes":
                 print("The machine has been cleaned, you can continue")# print a message whether or not the machine was cleaned
                 self.clean_machine()
-            
-            
+
+
             #zm254-10/20/23
             #if ant of the above stage if the user has entered a invalidi choice the invalidChoiceException is called
             # #and asked the user to choose again with the given option        
@@ -281,7 +282,7 @@ class PumpkinMachine:
             print("Youve entered an invalid choice.Please choose from the given options")
             # show an appropriate message of what stage/category was the invalid choice was in
             self.run()
-        
+
         # handle ExceededRemainingChoicesException
             #zm254-10/19/23
             # move to the next stage/category
