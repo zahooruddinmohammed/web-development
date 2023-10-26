@@ -3,4 +3,4 @@ venv
 .vscode
 __pycache__
 .DS_Store
-.vscode
+.env
