@@ -59,7 +59,9 @@ class DB:
             # this will let you more easily swap out DB connectors without needing to refactor your code, just this class
             raise Exception(e)
         return response 
-
+    @staticmethod
+    def delete(queryString, *args):
+        return DB.__runQuery(CRUD.DELETE, False, queryString, args)
     @staticmethod
     def update(queryString, *args):
         return DB.__runQuery(CRUD.UPDATE, False, queryString, args)
