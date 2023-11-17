@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - mp3-prod
-      - MiniProject-3
+      - MiniProject3
 
 # Your workflows jobs.
 jobs:
