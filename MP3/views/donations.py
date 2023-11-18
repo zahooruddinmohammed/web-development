@@ -1,8 +1,8 @@
-import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, redirect, render_template, request, flash, url_for
 from sql.db import DB
 donations = Blueprint('donations', __name__, url_prefix='/donations')
-
+import re
 
 @donations.route("/search", methods=["GET"])
 def search():
@@ -93,22 +93,76 @@ def add():
         # TODO add-8 item_quantity is required and must be more than 0 (flash proper error message)
         # TODO add-9 donation_date is required and must be within the past 30 days
         # TODO add-10 comments are optional
+        form_value = {}
         has_error = False # use this to control whether or not an insert occurs
-        
+
+        form_value["donor_firstname"] = input.getlist("donor_firstname")
+        form_value["donor_lastname"] = input.getlist("donor_lastname")
+        form_value["donor_email"] = input.getlist("donor_email")
+        form_value["organization_id"]= input.getlist("organization_id")
+        form_value["item_name"]= input.getlist("item_name")
+        form_value["item_description"]= input.getlist("item_description")
+        form_value["item_quantity"]=input.getlist("item_quantity")
+        form_value["donation_date"]=input.getlist("donation_date")
+        form_value["comments"]=input.getlist("comments")
+
+        for field,values in form_value.items():
+            for  value in values:
+                #todo add-2
+                if not value and field == "donor_firstname":
+                    flash("Donor First Name is required.", "danger")
+                    has_error =True
+                #todo add-3
+                elif not value and field == "donor_lastname":
+                    flash("Donor Last Name is required.","danger")
+                    has_error =True
+                #todo add-4
+                elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
+                    flash("Invalid email format. Please enter a valid email address", "danger")
+                    has_error = True
+                #todo add-5
+                elif not value and field == "organization_id":
+                    flash("Organization ID is required.","danger")
+                    has_error =True
+                #todo add-6
+                elif not value and field == "item_name":
+                    flash("Item name is required.","danger")
+                    has_error =True
+                
+                #todo add-8
+                elif not value and field =="item_quantity":
+                    flash("Item quantity is required.","danger")
+                    has_error =True
+                
+                elif not value.isnumeric() or int(value) <=0:
+                    flash("Item quantity must be a positive number.","danger")
+                    has_error =True
+                #todo add-9
+                elif not value and field == "donation_date":
+                    try:
+                        donation_date = datetime.strptime(form_value["donation_date"], "%Y-%m-%d")
+                        thirty_days_ago = datetime.now() - timedelta(days=30)
+                        if donation_date < thirty_days_ago:
+                            flash("Donation date must be within the past 30 days.", "danger")
+                            has_error = True
+                    except ValueError:
+                        flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
+                        has_error = True
+
+                   
+
        
         if not has_error:
             try:
                 result = DB.insertOne("""
-                INSERT INTO ...
-                """, ...
-                ) # <-- TODO add-11 add query and add arguments
+                INSERT INTO IS601_MP3_Donations (donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, donation_date)
+                VALUES (%(donor_firstname)s, %(donor_lastname)s, %(donor_email)s, %(organization_id)s, %(item_name)s, %(item_description)s, %(donation_date)s) """,form_value )# <-- TODO add-11 add query and add arguments
                 if result.status:
                     print("donation record created")
                     flash("Created Donation Record", "success")
             except Exception as e:
                 # TODO add-7 make message user friendly
-                print(f"insert error {e}")
-                flash(str(e), "danger")
+                flash(f"Unexpected error while trying to search employee: {e}", "danger")
     return render_template("manage_donation.html",donation=request.form)
 
 @donations.route("/edit", methods=["GET", "POST"])
