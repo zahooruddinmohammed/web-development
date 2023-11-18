@@ -81,7 +81,8 @@ def importCSV():
                 # as a dict only with donation data if all donation fields are present (refer to above SQL)
                 #zm254-11/18/23
                 if row["donor_name"]  and row["donor_email"]  and row["item_name"]  and row["item_description"]  and row["item_quantity"] and row["organization_name"]  and row["donation_date"] and row["comments"] :
-                        donations.append({"first_name":row["donor_name"],
+                        donations.append({"donor_name":row["donor_name"],
+                                          
                                           "email":row["donor_email"],
                                           "item_name":row["item_name"],
                                           "item_quantity":row["item_quantity"],

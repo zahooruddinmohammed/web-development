@@ -10,8 +10,8 @@ def search():
     organization_name = ""
     # DO NOT DELETE PROVIDED COMMENTS
     # TODO search-1 retrieve donation id as id, donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments, organization_name using a LEFT JOIN
-    query = """SELECT ...
-     FROM ... LEFT JOIN ... WHERE 1=1"""
+    query = """SELECT A.id, first_name, last_name, email, organization.organization_id, item_name, item_description, item_quantity, donation_date, comments, organizaions.name AS organization_name
+     FROM donations LEFT JOIN organizations ON donations.organization_id = organizations.organization_id WHERE 1=1"""
     args = {} # <--- add values to replace %s/%(named)s placeholders
     allowed_columns = ["donor_firstname", "donor_lastname", "donor_email", "organization_name" ,"item_name", "item_quantity", "created", "modified"]
     # TODO search-2 get fn, ln, email, organization_id, column, order, limit from request args
@@ -23,14 +23,34 @@ def search():
     # TODO search-8 append sorting if column and order are provided and within the allowed columns and order options (asc, desc)
     # TODO search-9 append limit (default 10) or limit greater than 1 and less than or equal to 100
     # TODO search-10 provide a proper error message if limit isn't a number or if it's out of bounds
+    #zm254-10/18/23
+    filters= [("fn","first_name"),("ln","last_name"),("email","email")]
+    for filter_arg,filter in filters:
+        if request.args.get(filter_arg):
+            query += f" and {filter} like %(filter_{filter_arg})s"
+            args[f"filter_{filter_arg}"]= f"%{request.args.get(filter_arg)}%"
     
+    if request.args.get("organization"):
+        query += f" and organization_id=%(organization_id)s"
+        args["organization_id"]= request.args.get("organization")
+
+    if request.args.get("order") and request.args.get("column"):
+        if request.args.get("column") in allowed_columns  and request.args.get("order") in ["asc","desc"]:
+            query += f" ORDER BY {request.args.get('column')}{request.args.get('order')}"
+    #zm254-10/18/23
+
+
     
     limit = 10 # TODO change this per the above requirements
-    
     query += " LIMIT %(limit)s"
-    args["limit"] = limit
-    #print("query",query)
-    #print("args", args)
+    
+    ql= int(request.args.get('limit',10))
+    if ql<1 or ql>100:
+        flash("Limit values should be in the range of 1-100; Defaulting to 10")
+        args["limit"]=10
+    else:
+        args["limit"]=ql 
+
     try:
         result = DB.selectAll(query, args)
         if result.status:
@@ -38,13 +58,24 @@ def search():
             #print(f"rows: {rows}")
     except Exception as e:
         # TODO search-11 make message user friendly
-        flash(e, "error")
+        #zahooruddin zohaib mohammed-11-18-23
+        print(e)
+        flash(f"Unexpected error while trying to search employee: {e}", "danger")
     # hint: use allowed_columns in template to generate sort dropdown
     # hint2: convert allowed_columns into a list of tuples representing (value, label)
     # do this prior to passing to render_template, but not before otherwise it can break validation
     
     # TODO search-12 if request args has organization identifier set organization_name variable to the correct name
-    
+    if request.args.get("organization"):
+        try:
+            result = DB.selectOne("SELECT name FROM organizations WHERE id = %(organization_id)s",
+                      {"organization_id": request.args.get("organization")})
+
+            if result.status:
+                organization_name = result.row["name"]
+        except Exception as e:
+            flash("An error occured while retriveing organization name.Please try again later.","error")
+
     return render_template("list_donations.html", organization_name=organization_name, rows=rows, allowed_columns=allowed_columns)
 
 
