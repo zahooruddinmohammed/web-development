@@ -15,15 +15,23 @@
             limit (default 10)
             ensure all fields prefill with request arg data if provided
             #}
+            {#zm254-11-17-23#}
             <!--name filter-->
-
+            <div class="col">
+                <label class="visually-hidden" for="name">Name</label>
+                <input type="text" name="name" class="form-control" id="name" placeholder="Name" value="{{request.args.get('name') or ''}}">
+            </div>
             <!-- country state filter-->
             {{country_state_selector(layout="horizontal")}}
             <!-- sort filter -->
             {# TODO pass/set the columns that can be used for sort/filter (i.e. allowed_columns) #}
             {{sort_filter(cols=[])}}
             <!--limit filter-->
-
+            <div class="col">
+                <label class="visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" min="1" max="100" id="limit" name="limit" value="{{request.args.get('limit') or '10'}}" />
+            </div>
+            <div class="col">
             <div class="col">
                 <input type="submit" class="btn btn-primary" value="Filter" />
             </div>
@@ -40,8 +48,11 @@
                     {# generate th tags for each column to display #}
                     {# don't show any id or organization_id columns #}
                     {# IMPORTANT use table column names as the headings, replace _ with space via filter #}
+                    {#zm254-11-17-23#}
                     <!-- add th elements -->
-
+                    {% for r in rows[0] %}
+                    <th>{{r | replace('_', ' ')}}</th>
+                    {% endfor %}
                     <!-- keep this -->
                     <th>Actions</th>
                 </tr>
@@ -58,7 +69,20 @@
                 a delete button that passes the organization id and the request args to the organization delete route
                 #}
                 <!-- iterate over rows and generate proper tr and td elements with the data -->
-
+                <tr>
+                    {% for k,v in r.items()%}
+                        {% if k == "website"%}
+                            <td>
+                                <a href="{{v}}">website</a>
+                            </td>
+                        {% else %}
+                            <td>{{v}}</td>
+                        {% endif %}
+                    {% endfor %}
+                    <td>
+                        <a href="{{url_for('donation.search',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">view</a>
+                    </td>
+                </tr>
             </tbody>
             {% else %}
             <tbody>
