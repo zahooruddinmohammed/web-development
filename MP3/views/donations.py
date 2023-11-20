@@ -189,6 +189,7 @@ def edit():
             # TODO add-9 item_quantity is required and must be more than 0 (flash proper error message)
             # TODO add-10 donation_date is required and must be within the past 30 days
             # TODO add-11 comments are optional
+            #Zahooruddin zohaib moahmmed-zm254-11/20/23
             form_value={}
             has_error = False # use this to control whether or not an insert occurs
             form_value["donor_firstname"] = input.getlist("donor_firstname")
@@ -204,27 +205,33 @@ def edit():
             for field,values in form_value.items():
                 for  value in values:
                     #todo edit-2
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     if not value and field == "donor_firstname":
                         flash("Donor First Name is required.", "danger")
                         has_error =True
                     #todo edit-3
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     elif not value and field == "donor_lastname":
                         flash("Donor Last Name is required.","danger")
                         has_error =True
                     #todo edit-4
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
                         flash("Invalid email format. Please enter a valid email address", "danger")
                         has_error = True
                     #todo edit-5
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     elif not value and field == "organization_id":
                         flash("Organization ID is required.","danger")
                         has_error =True
                     #todo edit-6
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     elif not value and field == "item_name":
                         flash("Item name is required.","danger")
                         has_error =True
                     
                     #todo edit-8
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     elif not value and field =="item_quantity":
                         flash("Item quantity is required.","danger")
                         has_error =True
@@ -233,6 +240,7 @@ def edit():
                         flash("Item quantity must be a positive number.","danger")
                         has_error =True
                     #todo edit-9
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     elif not value and field == "donation_date":
                         try:
                             donation_date = datetime.strptime(form_value["donation_date"], "%Y-%m-%d")
@@ -247,6 +255,7 @@ def edit():
             if not has_error:
                 try:
                     # TODO edit-12 fill in proper update query
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     result = DB.update("""
                     UPDATE IS601_MP3_Donations SET
                     donor_firstname = %(donor_firstname)s,
@@ -263,11 +272,13 @@ def edit():
                         flash("Updated record", "success")
                 except Exception as e:
                     # TODO edit-13 make this user-friendly
+                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     print(f"update error {e}")
                     flash("Failed to update record. Please try again.", "danger")
         
         try:
             # TODO edit-14 fetch the updated data 
+            #Zahooruddin zohaib moahmmed-zm254-11/20/23
             result = DB.selectOne("""SELECT d.id, d.donor_firstname, d.donor_lastname, d.donor_email, d.organization_id, 
                        d.item_name, d.item_description, d.item_quantity, d.donation_date, d.comments,o.organization_name
                         FROM IS601_MP3_Donations d
@@ -278,6 +289,7 @@ def edit():
                 row = result.row
         except Exception as e:
             # TODO edit-15 make this user-friendly
+            #Zahooruddin zohaib moahmmed-zm254-11/20/23
             print(e)
             flash(f"Unexpected error while trying to fetch updated data: {e}", "danger")
     
@@ -286,10 +298,23 @@ def edit():
 @donations.route("/delete", methods=["GET"])
 def delete():
     # TODO delete-1 if id is missing, flash necessary message and redirect to search
-    # TODO delete-2 delete donation by id (fetch the id from the request)
-    # TODO delete-3 ensure a flash message shows for successful delete
-    # TODO delete-4 pass all argument except id to this route
-    # TODO delete-5 redirect to donation search
-    pass
+    id = request.args.get("id")
+    if not id:
+        flash("ID is missing. Please provide a valid ID.", "danger")
+        return redirect(url_for("donations.search"))
+    try:
+        # TODO delete-2 delete donation by id (fetch the id from the request)
+        result = DB.deleteOne("DELETE FROM IS601_MP3_Donations WHERE id = %(id)s", {"id": id})
+        if result.status:  
+            # TODO delete-3 ensure a flash message shows for successful delete
+            flash("Successfully deleted the donation record.", "success")
+        else:
+            # TODO delete-4 pass all argument except id to this route
+            flash("Failed to delete the donation record.", "danger")
+            return redirect(url_for("donations.search", **request.args))
+    except Exception as e:
+        # TODO delete-5 redirect to donation search
+        flash(f"Unexpected error while trying to delete the donation record: {e}", "danger")
+
 
     # return redirect(url_for("donations.search", **args))
