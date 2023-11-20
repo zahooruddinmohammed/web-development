@@ -64,7 +64,9 @@ def search():
 
 @organization.route("/add", methods=["GET","POST"])
 def add():
+    input =request.form
     if request.method == "POST":
+        form_value ={}
         has_error = False # use this to control whether or not an insert occurs
         
         # TODO add-1 retrieve form data for name, address, city, state, country, zip, website, description
@@ -81,21 +83,88 @@ def add():
         # TODO add-8 zip is required (flash proper error message)
         # note: call zip variable zipcode as zip is a built in function it could lead to issues
         # TODO add-9 description is not required
-
+        #zahooruddin zohaib mohammed-zm254-11-20-23
+        form_value["name"]= request.getlist('name')
+        form_value["address"]=request.getlist('address')
+        form_value["city"]=request.getlist('city')
+        form_value["state"]=request.getlist('state')
+        form_value["country"]=request.getlist('country')
+        form_value["zip"]=request.getlist('zip')
+        form_value["website"]=request.getlist('website')
+        form_value["description"]=request.getlist('description')
+        for field,values in form_value.items():
+            for  value in values:
+                #todo add-2
+                if not value and field == "name":
+                    flash("Name is required.", "danger")
+                    has_error =True
+                #todo add-3
+                elif not value and field == "address":
+                    flash("address is required.","danger")
+                    has_error =True
+                #todo add-4
+                elif not value and field == "city":
+                    flash("city is required.","danger")
+                    has_error =True
+                #todo add-5 & 5a
+                elif  field == "state":
+                    state= value
+                    if not state:
+                        flash("state is required.","danger")
+                        has_error =True
+                    else:
+                        try:
+                            state_obj = pycountry.subvisions.get(code=state)
+                            if not state_obj:
+                                flash("Invalid state code.","danger")
+                                has_error =True
+                        except Exception as e:
+                            flash("An error occured while validating the state.","danger")
+                            has_error =True
+                #todo add-6 and 6a
+                elif not value and field == "country":
+                    flash("Country is required","danger")
+                    has_error=True
+                elif field =="country":
+                    country  =value
+                    if not country:
+                        flash("Country is required","danger")
+                    else:
+                        try:
+                            country_obj = pycountry.countries.get(alpha_2=country)
+                            if not country_obj:
+                                flash("Invalid country code.","danger")
+                                has_error=True
+                        except Exception as e:
+                            flash("An error occured while validating the country.","Danger")
+                            has_error =True
+                #todo add-8
+                elif not value and field == "zip":
+                    flash("Zip is required.","danger")
+                    has_error=True
+    
         if not has_error:
             try:
                 result = DB.insertOne("""
-                INSERT INTO IS601_MP3_Organizations ...
-                ...
+                INSERT INTO IS601_MP3_Organizations (name, address, city, state, country, zip, website, description)
                 VALUES
-                ...
-                """, ...) # <-- TODO add-10 add query and add arguments
+                (%(name)s, %(address)s, %(city)s, %(state)s, %(country)s, %(zip)s, %(website)s, %(description)s)
+                """,  {
+                    "name": request.form['name'],
+                    "address": request.form['address'],
+                    "city": request.form['city'],
+                    "state": request.form['state'],
+                    "country": request.form['country'],
+                    "zip": request.form['zip'],
+                    "website": request.form.get('website', ''),
+                    "description": request.form.get('description', '')
+                }) # <-- TODO add-10 add query and add arguments
                 
                 if result.status:
                     flash("Added Organization", "success")
             except Exception as e:
                 # TODO add-11 make message user friendly
-                flash(str(e), "danger")
+                flash("An error occurred while adding the organization. Please try again later.", "danger")
         
     return render_template("manage_organization.html", org=request.form)
 
