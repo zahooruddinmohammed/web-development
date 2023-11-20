@@ -61,6 +61,7 @@ def importCSV():
             # TODO importcsv-2 read the csv file stream as a dict
         
             for row in csv.DictReader(stream,delimiter=','):
+             
                 
                 # print(row) #example
                 # TODO importcsv-3: extract organization data and append to organization list
@@ -80,17 +81,22 @@ def importCSV():
                 # TODO importcsv-4: extract donation data and append to donation list
                 # as a dict only with donation data if all donation fields are present (refer to above SQL)
                 #zm254-11/18/23
-                if row["donor_name"]  and row["donor_email"]  and row["item_name"]  and row["item_description"]  and row["item_quantity"] and row["organization_name"]  and row["donation_date"] and row["comments"] :
-                        donations.append({"donor_name":row["donor_name"],
-                                          
-                                          "email":row["donor_email"],
-                                          "item_name":row["item_name"],
-                                          "item_quantity":row["item_quantity"],
-                                            "organization_name": row["organization_name"],
-                                          "donation_date":row["donation_date"],
-                                          "comments":row["comments"]
-                                          })
-                
+                if row["donor_name"] and row["donor_email"] and row["item_name"] and row["item_description"] and row["item_quantity"] and row["organization_name"] and row["donation_date"] and row["comments"]:
+                    donor_name_parts = row["donor_name"].split()
+                    donor_firstname = donor_name_parts[0] if donor_name_parts else ""
+                    donor_lastname = donor_name_parts[1] if len(donor_name_parts) > 1 else ""
+
+                    donations.append({
+                        "donor_firstname": donor_firstname,
+                        "donor_lastname": donor_lastname,
+                        "donor_email": row["donor_email"],
+                        "item_name": row["item_name"],
+                        "item_description": row["item_description"],
+                        "quantity": row["item_quantity"],
+                        "organization_name": row["organization_name"],
+                        "donation_date": row["donation_date"],
+                        "comments": row["comments"]
+                    })
             if len(organizations) > 0:
                 print(f"Inserting or updating {len(organizations)} organizations")
                 try:
@@ -108,6 +114,7 @@ def importCSV():
                 pass
             if len(donations) > 0:
                 print(f"Inserting or updating {len(donations)} donations")
+                print("Donation Query:", donation_query)  # Add this line
                 try:
                     result = DB.insertMany(donation_query, donations)
                     # TODO importcsv-7 display flash message about number of donations loaded

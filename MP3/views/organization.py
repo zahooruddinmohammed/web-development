@@ -10,8 +10,12 @@ def search():
     # DO NOT DELETE PROVIDED COMMENTS
     # TODO search-1 retrieve id, name, address, city, country, state, zip, website, donation count as donations for the organization
     # don't do SELECT * and replace the below "..." portion
+    #zahooruddin zohaib Mohammed-zm254-11/20/23
     allowed_columns = ["name", "city", "country", "state", "modified", "created"]
-    query = "... WHERE 1=1"
+    query = """SELECT id, name, address, city, country, state, zip, website,
+            (SELECT COUNT(*) FROM donations WHERE organization_id = organizations.id) as donations,
+            created
+            FROM organizations WHERE 1=1"""
     args = {} # <--- add values to replace %s/%(named)s placeholders
    
     
@@ -22,12 +26,25 @@ def search():
     # TODO search-6 append sorting if column and order are provided and within the allows columns and allowed order asc,desc
     # TODO search-7 append limit (default 10) or limit greater than or equal to 1 and less than or equal to 100
     # TODO search-8 provide a proper error message if limit isn't a number or if it's out of bounds
+    filters = [("name", "name"), ("country", "country"), ("state", "state")]
+    for filter_arg, filter in filters:
+        if request.args.get(filter_arg):
+            query += f" AND {filter} LIKE %s"
+            args[f"%{request.args.get(filter_arg)}%"] = True
+
+    if request.args.get("order") and request.args.get("column"):
+        if request.args.get("column") in allowed_columns and request.args.get("order") in ["asc", "desc"]:
+            query += f" ORDER BY {request.args.get('column')} {request.args.get('order')}"
     limit = 10 # TODO change this per the above requirements
     
     query += " LIMIT %(limit)s"
-    args["limit"] = limit
-    #print("query",query)
-    #print("args", args)
+    ql= int(request.args.get('limit',10))
+    if ql<1 or ql>100:
+        flash("Limit values should be in the range of 1-100; Defaulting to 10")
+        args["limit"]=10
+    else:
+        args["limit"]=ql 
+        
     try:
         result = DB.selectAll(query, args)
         #print(f"result {result.rows}")
@@ -35,7 +52,8 @@ def search():
             rows = result.rows
     except Exception as e:
         # TODO search-9 make message user friendly
-        flash(str(e), "danger")
+        flash("An error occurred while fetching organizations. Please try again later.", "danger")
+
     # hint: use allowed_columns in template to generate sort dropdown
     # hint2: convert allowed_columns into a list of tuples representing (value, label)
     
