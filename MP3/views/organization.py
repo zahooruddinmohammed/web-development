@@ -177,6 +177,7 @@ def add():
 @organization.route("/edit", methods=["GET", "POST"])
 def edit():
     # TODO edit-1 request args id is required (flash proper error message)
+    #zahooruddin zohaib mohammed-zm254-11-20-23
     id = request.args.get(id) 
     if not id: # TODO update this for TODO edit-1
         flash("organziation id is required.","danger")
@@ -200,7 +201,7 @@ def edit():
             # populate data dict with mappings
             has_error = False # use this to control whether or not an insert occurs
             form_value ={}
-
+            #zahooruddin zohaib mohammed-zm254-11-20-23
             form_value["name"] = request.form.getlist('name')
             form_value["address"] = request.form.getlist('address')
             form_value["city"] = request.form.getlist('city')
@@ -211,22 +212,28 @@ def edit():
 
             for field,values in form_value.items():
                 for value in values:
+                    #todo edit -3
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     if not value and field =="name":
                         flash("Name is requied.","danger")
                         has_error=True
-                        
+                     #todo edit -4
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     elif not value and field =="address":
                         flash("address is required","danger")
                         has_error=True
-
+                     #todo edit -5
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     elif not value and field =="city":
                         flash("city is required","danger")
                         has_error=True
-                    
+                     #todo edit -6
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     elif not value and field =="state":
                         flash("state is required","danger")
                         has_error=True
-                    
+                     #todo edit -6a
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     elif field == "state":
                         state = value
                         if not state:
@@ -241,11 +248,13 @@ def edit():
                             except Exception as e:
                                 flash("An error occurred while validating the state.", "danger")
                                 has_error = True
-
+                     #todo edit -7
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     elif not value and field == "country":
                         flash("Country is required.", "danger")
                         has_error = True
-                    
+                     #todo edit -7a 
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     elif field == "country":
                         country = value
                         if not country:
@@ -259,8 +268,9 @@ def edit():
                                     has_error = True
                             except Exception as e:
                                 flash("An error occurred while validating the country.", "danger")
-                                has_error = True 
-                    
+                                has_error = True
+                    #todo edit -9 
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     elif not value and field == "zip":
                         flash("zip is required.","danger")
                         has_error=True
@@ -268,6 +278,7 @@ def edit():
                 try:
                     # TODO edit-10 fill in proper update query
                     # name, address, city, state, country, zip, website
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     result = DB.update("""
                     UPDATE IS601_MP3_Organizations
                     SET %(name)s, address = %(address)s, city = %(city)s, state = %(state)s,
@@ -287,29 +298,51 @@ def edit():
                         flash("Updated record", "success")
                 except Exception as e:
                     # TODO edit-11 make this user-friendly
+                    #zahooruddin zohaib mohammed-zm254-11-20-23
                     print(f"{e}")
                     flash("An error occurred while updating the organization. Please try again later.", "danger")
         row = {}
         try:
             # TODO edit-12 fetch the updated data
+            #zahooruddin zohaib mohammed-zm254-11-20-23
             result = DB.selectOne("SELECT * FROM IS601_MP3_Organizations WHERE id = %(id)s", {"id": id})
             if result.status:
                 row = result.row
                 
         except Exception as e:
             # TODO edit-13 make this user-friendly
-
+            #zahooruddin zohaib mohammed-zm254-11-20-23
             flash("An error occurred while fetching organization details. Please try again later.", "danger")
     
     return render_template("manage_organization.html", org=row)
 
 @organization.route("/delete", methods=["GET"])
 def delete():
+    
     # TODO delete-1 if id is missing, flash necessary message and redirect to search
+     #zahooruddin zohaib mohammed-zm254-11-20-23
+    id = request.args.get('id')
+    if not id:
+        flash("organziation id is reuqired.","danger")
+    try:
     # TODO delete-2 delete organization by id (note: you'll likely need to trigger a delete of all donations related to this organization first due to foreign key constraints)
+     #zahooruddin zohaib mohammed-zm254-11-20-23
+        DB.delete("DELETE FROM IS601_MP3_Donations WHERE organization_id = %(id)s")
+        result =DB.delete("DELETE FROM IS601_MP3_Organizations WHERE id =%(id)s")
+        if result.status:
+            flash("Organization deleted successfully.","success")
+        else:
+            flash("Failed to delete organization.Please try again later.","danger")
+    except Exception as e:
     # TODO delete-3 ensure a flash message shows for successful delete
+     #zahooruddin zohaib mohammed-zm254-11-20-23
+        flash("An error occured while deleting the organization.try again later.","danger")
     # TODO delete-4 pass all argument except id to this route
+     #zahooruddin zohaib mohammed-zm254-11-20-23
+    args = request.args.copy()
+    args.pop('id',None)
     # TODO delete-5 redirect to organization search
-    pass
-   
+    return redirect(url_for("organization.search",**args))
+
+
     # return redirect(url_for("organization.search", **args))
