@@ -298,23 +298,28 @@ def edit():
 @donations.route("/delete", methods=["GET"])
 def delete():
     # TODO delete-1 if id is missing, flash necessary message and redirect to search
+    #zahooruddin zohaib mohammed-zm254-11/20/23
     id = request.args.get("id")
     if not id:
         flash("ID is missing. Please provide a valid ID.", "danger")
         return redirect(url_for("donations.search"))
     try:
         # TODO delete-2 delete donation by id (fetch the id from the request)
+        #zahooruddin zohaib mohammed -zm254-11/20/23
         result = DB.deleteOne("DELETE FROM IS601_MP3_Donations WHERE id = %(id)s", {"id": id})
         if result.status:  
             # TODO delete-3 ensure a flash message shows for successful delete
+            #zahooruddin zohaib Mohammed-zm254-11/20/23
             flash("Successfully deleted the donation record.", "success")
         else:
             # TODO delete-4 pass all argument except id to this route
+            #zahooruddin zohaib mohammed-zm254-11/20/23
             flash("Failed to delete the donation record.", "danger")
             return redirect(url_for("donations.search", **request.args))
     except Exception as e:
         # TODO delete-5 redirect to donation search
+        #zahooruddin zohaib Mohammed-zm254-11/20/23
         flash(f"Unexpected error while trying to delete the donation record: {e}", "danger")
 
 
-    # return redirect(url_for("donations.search", **args))
+    return redirect(url_for("donations.search", **request.args))
