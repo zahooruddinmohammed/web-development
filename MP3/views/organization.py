@@ -64,7 +64,7 @@ def search():
 
 @organization.route("/add", methods=["GET","POST"])
 def add():
-    input =request.form
+    
     if request.method == "POST":
         form_value ={}
         has_error = False # use this to control whether or not an insert occurs
@@ -95,18 +95,22 @@ def add():
         for field,values in form_value.items():
             for  value in values:
                 #todo add-2
+                 #zahooruddin zohaib mohammed-zm254-11-20-23
                 if not value and field == "name":
                     flash("Name is required.", "danger")
                     has_error =True
                 #todo add-3
+                 #zahooruddin zohaib mohammed-zm254-11-20-23
                 elif not value and field == "address":
                     flash("address is required.","danger")
                     has_error =True
                 #todo add-4
+                 #zahooruddin zohaib mohammed-zm254-11-20-23
                 elif not value and field == "city":
                     flash("city is required.","danger")
                     has_error =True
                 #todo add-5 & 5a
+                 #zahooruddin zohaib mohammed-zm254-11-20-23
                 elif  field == "state":
                     state= value
                     if not state:
@@ -122,6 +126,7 @@ def add():
                             flash("An error occured while validating the state.","danger")
                             has_error =True
                 #todo add-6 and 6a
+                 #zahooruddin zohaib mohammed-zm254-11-20-23
                 elif not value and field == "country":
                     flash("Country is required","danger")
                     has_error=True
@@ -138,7 +143,8 @@ def add():
                         except Exception as e:
                             flash("An error occured while validating the country.","Danger")
                             has_error =True
-                #todo add-8
+                #todo add-8\
+                 #zahooruddin zohaib mohammed-zm254-11-20-23
                 elif not value and field == "zip":
                     flash("Zip is required.","danger")
                     has_error=True
@@ -159,7 +165,7 @@ def add():
                     "website": request.form.get('website', ''),
                     "description": request.form.get('description', '')
                 }) # <-- TODO add-10 add query and add arguments
-                
+                 #zahooruddin zohaib mohammed-zm254-11-20-23
                 if result.status:
                     flash("Added Organization", "success")
             except Exception as e:
@@ -171,9 +177,10 @@ def add():
 @organization.route("/edit", methods=["GET", "POST"])
 def edit():
     # TODO edit-1 request args id is required (flash proper error message)
-    id = False
+    id = request.args.get(id) 
     if not id: # TODO update this for TODO edit-1
-        pass
+        flash("organziation id is required.","danger")
+     
     else:
         if request.method == "POST":
             data = {"id": id} # use this as needed, can convert to tuple if necessary
@@ -192,16 +199,88 @@ def edit():
             # note: call zip variable zipcode as zip is a built in function it could lead to issues
             # populate data dict with mappings
             has_error = False # use this to control whether or not an insert occurs
+            form_value ={}
 
+            form_value["name"] = request.form.getlist('name')
+            form_value["address"] = request.form.getlist('address')
+            form_value["city"] = request.form.getlist('city')
+            form_value["state"] = request.form.getlist('state')
+            form_value["country"] = request.form.getlist('country')
+            form_value["zip"] = request.form.getlist('zip')
+            form_value["website"] = request.form.getlist('website')
+
+            for field,values in form_value.items():
+                for value in values:
+                    if not value and field =="name":
+                        flash("Name is requied.","danger")
+                        has_error=True
+                        
+                    elif not value and field =="address":
+                        flash("address is required","danger")
+                        has_error=True
+
+                    elif not value and field =="city":
+                        flash("city is required","danger")
+                        has_error=True
+                    
+                    elif not value and field =="state":
+                        flash("state is required","danger")
+                        has_error=True
+                    
+                    elif field == "state":
+                        state = value
+                        if not state:
+                            flash("State is required.", "danger")
+                            has_error = True
+                        else:
+                            try:
+                                state_obj = pycountry.subdivisions.get(code=state)
+                                if not state_obj:
+                                    flash("Invalid state code.", "danger")
+                                    has_error = True
+                            except Exception as e:
+                                flash("An error occurred while validating the state.", "danger")
+                                has_error = True
+
+                    elif not value and field == "country":
+                        flash("Country is required.", "danger")
+                        has_error = True
+                    
+                    elif field == "country":
+                        country = value
+                        if not country:
+                            flash("Country is required.", "danger")
+                            has_error = True
+                        else:
+                            try:
+                                country_obj = pycountry.countries.get(alpha_2=country)
+                                if not country_obj:
+                                    flash("Invalid country code.", "danger")
+                                    has_error = True
+                            except Exception as e:
+                                flash("An error occurred while validating the country.", "danger")
+                                has_error = True 
+                    
+                    elif not value and field == "zip":
+                        flash("zip is required.","danger")
+                        has_error=True
             if not has_error:
                 try:
                     # TODO edit-10 fill in proper update query
                     # name, address, city, state, country, zip, website
                     result = DB.update("""
-                    UPDATE ...
-                    SET
-                    ...
-                    """, data)
+                    UPDATE IS601_MP3_Organizations
+                    SET %(name)s, address = %(address)s, city = %(city)s, state = %(state)s,
+                    country = %(country)s, zip = %(zip)s, website = %(website)s
+                    WHERE id = %(id)s
+                    """, {  "id": id,
+                            "name": request.form['name'],
+                            "address": request.form['address'],
+                            "city": request.form['city'],
+                            "state": request.form['state'],
+                            "country": request.form['country'],
+                            "zip": request.form['zip'],
+                            "website": request.form.get('website', ''),})
                     
                     if result.status:
                         print("updated record")
@@ -209,17 +288,18 @@ def edit():
                 except Exception as e:
                     # TODO edit-11 make this user-friendly
                     print(f"{e}")
-                    flash(str(e), "danger")
+                    flash("An error occurred while updating the organization. Please try again later.", "danger")
         row = {}
         try:
             # TODO edit-12 fetch the updated data
-            result = DB.selectOne("SELECT ... FROM ... WHERE ...", id)
+            result = DB.selectOne("SELECT * FROM IS601_MP3_Organizations WHERE id = %(id)s", {"id": id})
             if result.status:
                 row = result.row
                 
         except Exception as e:
             # TODO edit-13 make this user-friendly
-            flash(str(e), "danger")
+
+            flash("An error occurred while fetching organization details. Please try again later.", "danger")
     
     return render_template("manage_organization.html", org=row)
 
