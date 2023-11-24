@@ -64,7 +64,7 @@ def search():
 
 @organization.route("/add", methods=["GET","POST"])
 def add():
-    
+    input = request.form
     if request.method == "POST":
         form_value ={}
         has_error = False # use this to control whether or not an insert occurs
@@ -84,14 +84,14 @@ def add():
         # note: call zip variable zipcode as zip is a built in function it could lead to issues
         # TODO add-9 description is not required
         #zahooruddin zohaib mohammed-zm254-11-20-23
-        form_value["name"]= request.getlist('name')
-        form_value["address"]=request.getlist('address')
-        form_value["city"]=request.getlist('city')
-        form_value["state"]=request.getlist('state')
-        form_value["country"]=request.getlist('country')
-        form_value["zip"]=request.getlist('zip')
-        form_value["website"]=request.getlist('website')
-        form_value["description"]=request.getlist('description')
+        form_value["name"]= input.getlist('name')
+        form_value["address"]=input.getlist('address')
+        form_value["city"]=input.getlist('city')
+        form_value["state"]=input.getlist('state')
+        form_value["country"]=input.getlist('country')
+        form_value["zip"]=input.getlist('zip')
+        form_value["website"]=input.getlist('website')
+        form_value["description"]=input.getlist('description')
         for field,values in form_value.items():
             for  value in values:
                 #todo add-2
@@ -178,7 +178,8 @@ def add():
 def edit():
     # TODO edit-1 request args id is required (flash proper error message)
     #zahooruddin zohaib mohammed-zm254-11-20-23
-    id = request.args.get(id) 
+    input = request.form
+    id = request.args.get('id') 
     if not id: # TODO update this for TODO edit-1
         flash("organziation id is required.","danger")
      
@@ -202,13 +203,13 @@ def edit():
             has_error = False # use this to control whether or not an insert occurs
             form_value ={}
             #zahooruddin zohaib mohammed-zm254-11-20-23
-            form_value["name"] = request.form.getlist('name')
-            form_value["address"] = request.form.getlist('address')
-            form_value["city"] = request.form.getlist('city')
-            form_value["state"] = request.form.getlist('state')
-            form_value["country"] = request.form.getlist('country')
-            form_value["zip"] = request.form.getlist('zip')
-            form_value["website"] = request.form.getlist('website')
+            form_value["name"] = input.getlist('name')
+            form_value["address"] = input.getlist('address')
+            form_value["city"] = input.getlist('city')
+            form_value["state"] = input.getlist('state')
+            form_value["country"] = input.getlist('country')
+            form_value["zip"] = input.getlist('zip')
+            form_value["website"] = input.getlist('website')
 
             for field,values in form_value.items():
                 for value in values:

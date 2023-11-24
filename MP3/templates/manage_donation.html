@@ -22,18 +22,35 @@ Donation{% endblock %}
             if a validation error occurs, the inserted form data should persist
             #}
             <!--donor first name-->
-
+                <label class ="form-label" for ="donor_firstname">Donor First Name</label>
+                <input type="text" name="first_name" class="form-control" id="donor_firstname" placeholder="donor_firstname" value="{{donation.get('donor_firstname')or ''}}"required>
+                <br>
             <!--donor last name-->
-
+                <label class ="form-label" for ="donor_lastname">Donor Last Name</label>
+                <input type="text" name="donor_lastname" class="form-control" id="donor_lastname" placeholder="donor_lastname" value="{{donation.get('donor_lastname')or ''}}"required>
+                <br>
             <!--donor email-->
+                <label class ="form-label" for ="donor_email">Donor Email</label>
+                <input type="email" name="donor_email" class="form-control" id="donor_email" placeholder="donor_email" value="{{donation.get('donor_email')or ''}}"required>
+                <br>
 
             <!--item name-->
+                <label class ="form-label" for ="item_name">Item Name</label>
+                <input type="text" name="item_name" class="form-control" id="item_name" placeholder="item_name" value="{{donation.get('item_name')or ''}}"required>
+                <br>
 
             <!--item_description -->
-
+                <label class ="form-label" for ="item_description">Item Description</label>
+                <input type="text" name="item_description" class="form-control" id="item_description" placeholder="item_description" value="{{donation.get('item_description')or ''}}"required>
+                <br>
             <!--item_quantity-->
-
+                <label for="item_quantity" class="form-label">Item Quantity</label>
+                <input type="number" class="form-control" id="item_quantity" name="item_quantity" required min="1" value="{{ donation.get('item_quantity') }}">
+                <br>
             <!--donation date-->
+                <label for="donation_date" class="form-label">Donation Date (mm/dd/yyyy)</label>
+                <input type="text" class="form-control" id="donation_date" name="donation_date" required pattern="\d{1,2}/\d{1,2}/\d{4}" value="{{ donation.get('donation_date') }}">
+                <br>
 
             <!-- organization selection-->
             {# use the below for organization selection #}

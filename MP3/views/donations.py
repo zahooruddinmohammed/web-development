@@ -10,8 +10,10 @@ def search():
     organization_name = ""
     # DO NOT DELETE PROVIDED COMMENTS
     # TODO search-1 retrieve donation id as id, donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments, organization_name using a LEFT JOIN
-    query = """SELECT A.id, first_name, last_name, email, organization.organization_id, item_name, item_description, item_quantity, donation_date, comments, organizaions.name AS organization_name
-     FROM donations LEFT JOIN organizations ON donations.organization_id = organizations.organization_id WHERE 1=1"""
+    query = """SELECT A.id, first_name, last_name, email, organization.organization_id, item_name, item_description, item_quantity, donation_date, comments, organizations.name AS organization_name
+        FROM donations 
+        LEFT JOIN organizations ON donations.organization_id = organizations.organization_id
+        WHERE 1=1"""
     args = {} # <--- add values to replace %s/%(named)s placeholders
     allowed_columns = ["donor_firstname", "donor_lastname", "donor_email", "organization_name" ,"item_name", "item_quantity", "created", "modified"]
     # TODO search-2 get fn, ln, email, organization_id, column, order, limit from request args
@@ -24,32 +26,57 @@ def search():
     # TODO search-9 append limit (default 10) or limit greater than 1 and less than or equal to 100
     # TODO search-10 provide a proper error message if limit isn't a number or if it's out of bounds
     #zm254-10/18/23
-    filters= [("fn","first_name"),("ln","last_name"),("email","email")]
-    for filter_arg,filter in filters:
-        if request.args.get(filter_arg):
-            query += f" and {filter} like %(filter_{filter_arg})s"
-            args[f"filter_{filter_arg}"]= f"%{request.args.get(filter_arg)}%"
-    
+    # TODO search-2 get fn, ln, email, organization_id, column, order, limit from request args
+    donor_firstname = request.args.get("donor_firstname", "")
+    donor_lastname = request.args.get("donor_lastname", "")
+    donor_email = request.args.get("donor_email", "")
+    organization_id = request.args.get("organization_id", "")
+    column = request.args.get("column", "")
+    order = request.args.get("order", "")
+    limit = request.args.get("limit", "")
+
+    if request.args.get("donor_firstname"):
+        query += " AND donor_firstname LIKE %(donor_firstname)s"
+        args["donor_firstname"] = f"%{request.args.get('donor_firstname')}%"
+
+    # TODO search-4 append like filter for donor_lastname if provided
+    if request.args.get("donor_lastname"):
+        query += " AND donor_lastname LIKE %(donor_lastname)s"
+        args["donor_lastname"] = f"%{request.args.get('donor_lastname')}%"
+
+    # TODO search-5 append like filter for donor_email if provided
+    if request.args.get("donor_email"):
+        query += " AND donor_email LIKE %(donor_email)s"
+        args["donor_email"] = f"%{request.args.get('donor_email')}%"
+
+    # TODO search-6 append like filter for item_name if provided
+    if request.args.get("item_name"):
+        query += " AND item_name LIKE %(item_name)s"
+        args["item_name"] = f"%{request.args.get('item_name')}%"
+
     if request.args.get("organization"):
-        query += f" and organization_id=%(organization_id)s"
-        args["organization_id"]= request.args.get("organization")
+        query += " and d.organization_id=%(organization_id)s"
+        args["organization_id"]= request.args.get("organization_id")
 
     if request.args.get("order") and request.args.get("column"):
         if request.args.get("column") in allowed_columns  and request.args.get("order") in ["asc","desc"]:
-            query += f" ORDER BY {request.args.get('column')}{request.args.get('order')}"
+            query += f" ORDER BY {request.args.get('column')} {request.args.get('order')}"
     #zm254-10/18/23
 
 
     
-    limit = 10 # TODO change this per the above requirements
-    query += " LIMIT %(limit)s"
-    
-    ql= int(request.args.get('limit',10))
-    if ql<1 or ql>100:
-        flash("Limit values should be in the range of 1-100; Defaulting to 10")
-        args["limit"]=10
-    else:
-        args["limit"]=ql 
+    limit = request.args.get("limit", 10)
+
+    try:
+        limit = int(limit)
+        if 1 <= limit <= 100:
+            query += " LIMIT %(limit)s"
+            args["limit"] = limit
+        else:
+            flash("Limit values should be in the range of 1-100; Defaulting to 10", "warning")
+    except ValueError:
+        flash("Invalid limit value; Defaulting to 10", "warning")
+        limit = 10
 
     try:
         result = DB.selectAll(query, args)
@@ -81,6 +108,7 @@ def search():
 
 @donations.route("/add", methods=["GET","POST"])
 def add():
+    input = request.form
     if request.method == "POST":
         # TODO add-1 retrieve form data for donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments
         # TODO add-2 donor_firstname is required (flash proper error message)
@@ -155,8 +183,8 @@ def add():
         if not has_error:
             try:
                 result = DB.insertOne("""
-                INSERT INTO IS601_MP3_Donations (donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, donation_date)
-                VALUES (%(donor_firstname)s, %(donor_lastname)s, %(donor_email)s, %(organization_id)s, %(item_name)s, %(item_description)s, %(donation_date)s) """,form_value )# <-- TODO add-11 add query and add arguments
+                INSERT INTO IS601_MP3_Donations (donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity,donation_date,comments)
+                VALUES (%(donor_firstname)s, %(donor_lastname)s, %(donor_email)s, %(organization_id)s, %(item_name)s, %(item_description)s,%(item_quantity)s, %(donation_date)s, %(comments)s) """,form_value )# <-- TODO add-11 add query and add arguments
                 if result.status:
                     print("donation record created")
                     flash("Created Donation Record", "success")
@@ -174,7 +202,7 @@ def edit():
     id = request.args.get("id")
     if not id: # TODO update this for TODO edit-1
        flash("Company ID is not available","Danger")
-       redirect('/employee/search')
+       return redirect(url_for('donations.search'))
     else:
         if request.method == "POST":
             
@@ -243,7 +271,7 @@ def edit():
                     #Zahooruddin zohaib moahmmed-zm254-11/20/23
                     elif not value and field == "donation_date":
                         try:
-                            donation_date = datetime.strptime(form_value["donation_date"], "%Y-%m-%d")
+                            donation_date = datetime.strptime(form_value["donation_date"][0], "%Y-%m-%d")
                             thirty_days_ago = datetime.now() - timedelta(days=30)
                             if donation_date < thirty_days_ago:
                                 flash("Donation date must be within the past 30 days.", "danger")
