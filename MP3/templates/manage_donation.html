@@ -22,8 +22,9 @@ Donation{% endblock %}
             if a validation error occurs, the inserted form data should persist
             #}
             <!--donor first name-->
-                <label class ="form-label" for ="donor_firstname">Donor First Name</label>
-                <input type="text" name="first_name" class="form-control" id="donor_firstname" placeholder="donor_firstname" value="{{donation.get('donor_firstname')or ''}}"required>
+                <label class="form-label" for ="donor_firstname">Donor First Name</label>
+                <input type="text" name="donor_firstname" class="form-control" id="donor_firstname" placeholder="donor_firstname" value="{{donation.get('donor_firstname') | default('')}}"required>
+                
                 <br>
             <!--donor last name-->
                 <label class ="form-label" for ="donor_lastname">Donor Last Name</label>

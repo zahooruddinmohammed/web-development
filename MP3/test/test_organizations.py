@@ -92,6 +92,7 @@ def test_organization_edit(fake_org_2, client):
             check = ele.get("value")
         else:
             check = ele.text
+        print(f"actual value: {check}, expected value: {v}")
         assert check == v, f"Failed to populate correct {k}"
     
     

@@ -69,20 +69,28 @@
                 a delete button that passes the organization id and the request args to the organization delete route
                 #}
                 <!-- iterate over rows and generate proper tr and td elements with the data -->
+                {% for r in rows %}0
                 <tr>
-                    {% for k,v in r.items()%}
+                    {% for k, v in r.items() %}
                         {% if k == "website"%}
                             <td>
-                                <a href="{{v}}">website</a>
+                                <a href="{{v}}">{{v}}</a>
                             </td>
                         {% else %}
                             <td>{{v}}</td>
                         {% endif %}
                     {% endfor %}
                     <td>
-                        <a href="{{url_for('donation.search',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">view</a>
+                        <a href="{{url_for('donations.search',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">view</a>
+                    </td>
+                    <td>
+                        <a href="{{url_for('donations.edit',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">edit</a>
+                    </td>
+                    <td>
+                        <a href="{{url_for('donations.delete',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">delete</a>
                     </td>
                 </tr>
+                {% endfor %}
             </tbody>
             {% else %}
             <tbody>

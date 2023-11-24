@@ -13,9 +13,9 @@ def search():
     #zahooruddin zohaib Mohammed-zm254-11/20/23
     allowed_columns = ["name", "city", "country", "state", "modified", "created"]
     query = """SELECT id, name, address, city, country, state, zip, website,
-            (SELECT COUNT(*) FROM donations WHERE organization_id = organizations.id) as donations,
+            (SELECT COUNT(*) FROM IS601_MP3_Donations WHERE organization_id = IS601_MP3_Organizations.id) as donations,
             created
-            FROM organizations WHERE 1=1"""
+            FROM IS601_MP3_Organizations WHERE 1=1"""
     args = {} # <--- add values to replace %s/%(named)s placeholders
    
     
@@ -84,14 +84,14 @@ def add():
         # note: call zip variable zipcode as zip is a built in function it could lead to issues
         # TODO add-9 description is not required
         #zahooruddin zohaib mohammed-zm254-11-20-23
-        form_value["name"]= input.getlist('name')
-        form_value["address"]=input.getlist('address')
-        form_value["city"]=input.getlist('city')
-        form_value["state"]=input.getlist('state')
-        form_value["country"]=input.getlist('country')
-        form_value["zip"]=input.getlist('zip')
-        form_value["website"]=input.getlist('website')
-        form_value["description"]=input.getlist('description')
+        form_value["name"]= input.get('name')
+        form_value["address"]=input.get('address')
+        form_value["city"]=input.get('city')
+        form_value["state"]=input.get('state')
+        form_value["country"]=input.get('country')
+        form_value["zip"]=input.get('zip')
+        form_value["website"]=input.get('website')
+        form_value["description"]=input.get('description')
         for field,values in form_value.items():
             for  value in values:
                 #todo add-2
@@ -154,7 +154,7 @@ def add():
                 result = DB.insertOne("""
                 INSERT INTO IS601_MP3_Organizations (name, address, city, state, country, zip, website, description)
                 VALUES
-                (%(name)s, %(address)s, %(city)s, %(state)s, %(country)s, %(zip)s, %(website)s, %(description)s)
+                (:name, :address, :city, :state, :country, :zip, :website , :description)
                 """,  {
                     "name": request.form['name'],
                     "address": request.form['address'],
@@ -203,13 +203,13 @@ def edit():
             has_error = False # use this to control whether or not an insert occurs
             form_value ={}
             #zahooruddin zohaib mohammed-zm254-11-20-23
-            form_value["name"] = input.getlist('name')
-            form_value["address"] = input.getlist('address')
-            form_value["city"] = input.getlist('city')
-            form_value["state"] = input.getlist('state')
-            form_value["country"] = input.getlist('country')
-            form_value["zip"] = input.getlist('zip')
-            form_value["website"] = input.getlist('website')
+            form_value["name"] = input.get('name')
+            form_value["address"] = input.get('address')
+            form_value["city"] = input.get('city')
+            form_value["state"] = input.get('state')
+            form_value["country"] = input.get('country')
+            form_value["zip"] = input.get('zip')
+            form_value["website"] = input.get('website')
 
             for field,values in form_value.items():
                 for value in values:
@@ -275,25 +275,27 @@ def edit():
                     elif not value and field == "zip":
                         flash("zip is required.","danger")
                         has_error=True
+           
             if not has_error:
                 try:
                     # TODO edit-10 fill in proper update query
                     # name, address, city, state, country, zip, website
                     #zahooruddin zohaib mohammed-zm254-11-20-23
                     result = DB.update("""
-                    UPDATE IS601_MP3_Organizations
-                    SET %(name)s, address = %(address)s, city = %(city)s, state = %(state)s,
-                    country = %(country)s, zip = %(zip)s, website = %(website)s
-                    WHERE id = %(id)s
-                    """, {  "id": id,
-                            "name": request.form['name'],
-                            "address": request.form['address'],
-                            "city": request.form['city'],
-                            "state": request.form['state'],
-                            "country": request.form['country'],
-                            "zip": request.form['zip'],
-                            "website": request.form.get('website', ''),})
-                    
+                        UPDATE IS601_MP3_Organizations
+                        SET name = %(name)s, address = %(address)s, city = %(city)s, state = %(state)s,
+                        country = %(country)s, zip = %(zip)s, website = %(website)s
+                        WHERE id = %(id)s
+                        """, {
+                                "id": id,
+                                "name": request.form['name'],
+                                "address": request.form['address'],
+                                "city": request.form['city'],
+                                "state": request.form['state'],
+                                "country": request.form['country'],
+                                "zip": request.form['zip'],
+                                "website": request.form.get('website', ''),})
+                                                
                     if result.status:
                         print("updated record")
                         flash("Updated record", "success")
@@ -325,11 +327,13 @@ def delete():
     id = request.args.get('id')
     if not id:
         flash("organziation id is reuqired.","danger")
+        return redirect(url_for("organization.search"))
     try:
     # TODO delete-2 delete organization by id (note: you'll likely need to trigger a delete of all donations related to this organization first due to foreign key constraints)
      #zahooruddin zohaib mohammed-zm254-11-20-23
-        DB.delete("DELETE FROM IS601_MP3_Donations WHERE organization_id = %(id)s")
-        result =DB.delete("DELETE FROM IS601_MP3_Organizations WHERE id =%(id)s")
+     
+        result = DB.delete("DELETE FROM IS601_MP3_Organizations WHERE id = %s", id)
+
         if result.status:
             flash("Organization deleted successfully.","success")
         else:

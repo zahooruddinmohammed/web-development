@@ -88,8 +88,8 @@
                 {% endfor %}
                 <td>
                     <!-- Edit and Delete Buttons -->
-                    <a href="{{url_for('donation.edit',id=r.get('id'))}}" class="btn btn-primary">Edit</a>
-                    <a href="{{url_for('donation.delete',id=r.get('id'), **request.args)}}" class="btn btn-danger">Delete</a>
+                    <a href="{{url_for('donations.edit',id=r.get('id'))}}" class="btn btn-primary">Edit</a>
+                    <a href="{{url_for('donations.delete',id=r.get('id'), **request.args)}}" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
             {% endfor %}

@@ -10,9 +10,20 @@ def search():
     organization_name = ""
     # DO NOT DELETE PROVIDED COMMENTS
     # TODO search-1 retrieve donation id as id, donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments, organization_name using a LEFT JOIN
-    query = """SELECT A.id, first_name, last_name, email, organization.organization_id, item_name, item_description, item_quantity, donation_date, comments, organizations.name AS organization_name
-        FROM donations 
-        LEFT JOIN organizations ON donations.organization_id = organizations.organization_id
+    query = """ SELECT
+            d.id,
+            d.donor_firstname,
+            d.donor_lastname,
+            d.donor_email,
+            d.organization_id,
+            d.item_name,
+            d.item_description,
+            d.item_quantity,
+            d.donation_date,
+            d.comments,
+            o.name AS organization_name
+        FROM IS601_MP3_Donations d
+        LEFT JOIN IS601_MP3_Organizations o ON d.organization_id = o.id
         WHERE 1=1"""
     args = {} # <--- add values to replace %s/%(named)s placeholders
     allowed_columns = ["donor_firstname", "donor_lastname", "donor_email", "organization_name" ,"item_name", "item_quantity", "created", "modified"]
@@ -35,32 +46,32 @@ def search():
     order = request.args.get("order", "")
     limit = request.args.get("limit", "")
 
-    if request.args.get("donor_firstname"):
+    if donor_firstname:
         query += " AND donor_firstname LIKE %(donor_firstname)s"
-        args["donor_firstname"] = f"%{request.args.get('donor_firstname')}%"
+        args["donor_firstname"] = f"%{'donor_firstname'}%"
 
     # TODO search-4 append like filter for donor_lastname if provided
-    if request.args.get("donor_lastname"):
+    if donor_lastname:
         query += " AND donor_lastname LIKE %(donor_lastname)s"
-        args["donor_lastname"] = f"%{request.args.get('donor_lastname')}%"
+        args["donor_lastname"] = f"%{'donor_lastname'}%"
 
     # TODO search-5 append like filter for donor_email if provided
-    if request.args.get("donor_email"):
+    if donor_email:
         query += " AND donor_email LIKE %(donor_email)s"
-        args["donor_email"] = f"%{request.args.get('donor_email')}%"
+        args["donor_email"] = f"%{'donor_email'}%"
 
     # TODO search-6 append like filter for item_name if provided
     if request.args.get("item_name"):
         query += " AND item_name LIKE %(item_name)s"
         args["item_name"] = f"%{request.args.get('item_name')}%"
 
-    if request.args.get("organization"):
+    if organization_id:
         query += " and d.organization_id=%(organization_id)s"
-        args["organization_id"]= request.args.get("organization_id")
+        args["organization_id"]= organization_id
 
-    if request.args.get("order") and request.args.get("column"):
-        if request.args.get("column") in allowed_columns  and request.args.get("order") in ["asc","desc"]:
-            query += f" ORDER BY {request.args.get('column')} {request.args.get('order')}"
+    if order and column:
+        if column in allowed_columns  and order in ["asc","desc"]:
+            query += f" ORDER BY {column} {order}"
     #zm254-10/18/23
 
 
@@ -133,7 +144,7 @@ def add():
         form_value["item_quantity"]=input.getlist("item_quantity")
         form_value["donation_date"]=input.getlist("donation_date")
         form_value["comments"]=input.getlist("comments")
-
+        print("Form Data:", form_value)
         for field,values in form_value.items():
             for  value in values:
                 #todo add-2
@@ -168,7 +179,7 @@ def add():
                 #todo add-9
                 elif not value and field == "donation_date":
                     try:
-                        donation_date = datetime.strptime(form_value["donation_date"], "%Y-%m-%d")
+                        donation_date = datetime.strptime(value, "%Y-%m-%d")
                         thirty_days_ago = datetime.now() - timedelta(days=30)
                         if donation_date < thirty_days_ago:
                             flash("Donation date must be within the past 30 days.", "danger")
@@ -177,7 +188,9 @@ def add():
                         flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
                         has_error = True
 
-                   
+        if not form_value["organization_id"][0].isnumeric():
+            flash("Organization ID must be a numeric value.", "danger")
+            has_error = True    
 
        
         if not has_error:
@@ -185,6 +198,10 @@ def add():
                 result = DB.insertOne("""
                 INSERT INTO IS601_MP3_Donations (donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity,donation_date,comments)
                 VALUES (%(donor_firstname)s, %(donor_lastname)s, %(donor_email)s, %(organization_id)s, %(item_name)s, %(item_description)s,%(item_quantity)s, %(donation_date)s, %(comments)s) """,form_value )# <-- TODO add-11 add query and add arguments
+                
+                print("Query:", result.query)
+                print("Arguments:", result.arguments)
+                
                 if result.status:
                     print("donation record created")
                     flash("Created Donation Record", "success")
