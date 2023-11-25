@@ -34,10 +34,11 @@
                 <label class="visually-hidden" for="limit">Limit</label>
                 <input class="form-control" type="number" min="1" max="100" id="limit" name="limit" value="{{request.args.get('limit') or '10'}}" />
             </div>
-            <div class="col">
+            
             <div class="col">
                 <input type="submit" class="btn btn-primary" value="Filter" />
             </div>
+            
             <div class="col">
                 <a href="?" class="btn btn-secondary">Reset</a>
             </div>
@@ -73,7 +74,7 @@
                 #}
                 {#zm254-11-17-23#}
                 <!-- iterate over rows and generate proper tr and td elements with the data -->
-                {% for r in rows %}0
+                {% for r in rows %}
                 <tr>
                     {% for k, v in r.items() %}
                         {% if k == "website"%}
