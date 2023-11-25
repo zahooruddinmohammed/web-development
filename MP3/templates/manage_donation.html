@@ -32,7 +32,7 @@ Donation{% endblock %}
                 <br>
             <!--donor email-->
                 <label class ="form-label" for ="donor_email">Donor Email</label>
-                <input type="email" name="donor_email" class="form-control" id="donor_email" placeholder="donor_email" value="{{donation.get('donor_email')or ''}}"required>
+                <input type="email" name="donor_email" class="form-control" id="donor_email" placeholder="donor_email" value="{{donation.get('donor_email') | default('')}}" required>
                 <br>
 
             <!--item name-->
@@ -50,7 +50,7 @@ Donation{% endblock %}
                 <br>
             <!--donation date-->
                 <label for="donation_date" class="form-label">Donation Date (mm/dd/yyyy)</label>
-                <input type="text" class="form-control" id="donation_date" name="donation_date" required pattern="\d{1,2}/\d{1,2}/\d{4}" value="{{ donation.get('donation_date') }}">
+                <input type="date" class="form-control" id="donation_date" name="donation_date" required value="{{ donation.get('donation_date') }}">
                 <br>
 
             <!-- organization selection-->

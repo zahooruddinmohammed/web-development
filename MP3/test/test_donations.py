@@ -122,6 +122,8 @@ def test_donation_add(client, rand_org):
         "donation_date": f"{formatted_date}"
     }
     resp = client.post("/donations/add", data=test_dict, follow_redirects=True)
+    print(f"Response Status Code: {resp.status_code}")
+    print(f"Response Data: {resp.data}")
     assert resp.status_code == 200, "Non-success response code from server"
     #import time
     #time.sleep(.1)
