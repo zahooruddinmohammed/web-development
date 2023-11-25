@@ -12,16 +12,16 @@ def search():
     # TODO search-1 retrieve donation id as id, donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments, organization_name using a LEFT JOIN
     query = """ SELECT
             d.id,
-            d.donor_firstname,
-            d.donor_lastname,
-            d.donor_email,
-            d.organization_id,
-            d.item_name,
-            d.item_description,
-            d.item_quantity,
-            d.donation_date,
-            d.comments,
-            o.name AS organization_name
+            donor_firstname,
+            donor_lastname,
+            donor_email,
+            organization_id,
+            item_name,
+            item_description,
+            item_quantity,
+            donation_date,
+            comments,
+            o.name as organization_name
         FROM IS601_MP3_Donations d
         LEFT JOIN IS601_MP3_Organizations o ON d.organization_id = o.id
         WHERE 1=1"""
@@ -38,13 +38,14 @@ def search():
     # TODO search-10 provide a proper error message if limit isn't a number or if it's out of bounds
     #zm254-10/18/23
     # TODO search-2 get fn, ln, email, organization_id, column, order, limit from request args
-    donor_firstname = request.args.get("donor_firstname", "")
-    donor_lastname = request.args.get("donor_lastname", "")
-    donor_email = request.args.get("donor_email", "")
-    organization_id = request.args.get("organization_id", "")
-    column = request.args.get("column", "")
-    order = request.args.get("order", "")
-    limit = request.args.get("limit", "")
+    donor_firstname = request.args.get("donor_firstname")
+    donor_lastname = request.args.get("donor_lastname")
+    donor_email = request.args.get("donor_email")
+    item_name = request.args.get("item_name")
+    organization_id = request.args.get("organization_id")
+    column = request.args.get("column", )
+    order = request.args.get("order", )
+    limit = request.args.get("limit", )
 
     if donor_firstname:
         query += " AND donor_firstname LIKE %(donor_firstname)s"
@@ -61,7 +62,7 @@ def search():
         args["donor_email"] = f"%{'donor_email'}%"
 
     # TODO search-6 append like filter for item_name if provided
-    if request.args.get("item_name"):
+    if item_name:
         query += " AND item_name LIKE %(item_name)s"
         args["item_name"] = f"%{request.args.get('item_name')}%"
 
@@ -69,26 +70,39 @@ def search():
         query += " and d.organization_id=%(organization_id)s"
         args["organization_id"]= organization_id
 
-    if order and column:
-        if column in allowed_columns  and order in ["asc","desc"]:
+    if column and order and column in allowed_columns  and order in ["asc","desc"]:
+            if column == 'created':
+                column = 'd.created'
+            if column == 'modified':
+                column = 'd.modified'
+            if column == 'organization_name':
+                  column = 'organization_name'
             query += f" ORDER BY {column} {order}"
     #zm254-10/18/23
 
 
     
-    limit = request.args.get("limit", 10)
+    #limit = request.args.get("limit", 10)
 
-    try:
-        limit = int(limit)
-        if 1 <= limit <= 100:
-            query += " LIMIT %(limit)s"
-            args["limit"] = limit
-        else:
-            flash("Limit values should be in the range of 1-100; Defaulting to 10", "warning")
-    except ValueError:
-        flash("Invalid limit value; Defaulting to 10", "warning")
-        limit = 10
-
+    if limit:
+        try:
+            limit = int(limit)
+            if 1 < limit <= 100:
+                limit = limit
+            else:
+                limit = 10
+                flash("Limit must be between 2 and 100", "error")
+        except ValueError:
+            limit = 10
+            flash("Limit must be a valid number", "error")
+    if not limit:
+          limit =10
+    
+    query += " LIMIT %(limit)s"
+    args["limit"] = limit
+    print("query",query)
+    print("args", args)
+    
     try:
         result = DB.selectAll(query, args)
         if result.status:
@@ -98,22 +112,13 @@ def search():
         # TODO search-11 make message user friendly
         #zahooruddin zohaib mohammed-11-18-23
         print(e)
-        flash(f"Unexpected error while trying to search employee: {e}", "danger")
+        flash(f"Unexpected error while trying to search zz : {e}", "danger")
     # hint: use allowed_columns in template to generate sort dropdown
     # hint2: convert allowed_columns into a list of tuples representing (value, label)
     # do this prior to passing to render_template, but not before otherwise it can break validation
     
     # TODO search-12 if request args has organization identifier set organization_name variable to the correct name
-    if request.args.get("organization"):
-        try:
-            result = DB.selectOne("SELECT name FROM organizations WHERE id = %(organization_id)s",
-                      {"organization_id": request.args.get("organization")})
-
-            if result.status:
-                organization_name = result.row["name"]
-        except Exception as e:
-            flash("An error occured while retriveing organization name.Please try again later.","error")
-
+    allowed_columns_for_template = [(column, column.replace("_", " ").title()) for column in allowed_columns]
     return render_template("list_donations.html", organization_name=organization_name, rows=rows, allowed_columns=allowed_columns)
 
 
@@ -132,86 +137,130 @@ def add():
         # TODO add-8 item_quantity is required and must be more than 0 (flash proper error message)
         # TODO add-9 donation_date is required and must be within the past 30 days
         # TODO add-10 comments are optional
-        form_value = {}
+        
         has_error = False # use this to control whether or not an insert occurs
 
-        form_value["donor_firstname"] = input.get("donor_firstname")
-        form_value["donor_lastname"] = input.get("donor_lastname")
-        form_value["donor_email"] = input.get("donor_email")
-        form_value["organization_id"]= input.get("organization_id")
-        form_value["item_name"]= input.get("item_name")
-        form_value["item_description"]= input.get("item_description")
-        form_value["item_quantity"]=input.get("item_quantity")
-        form_value["donation_date"]=input.get("donation_date")
-        form_value["comments"]=input.get("comments")
-        print("Form Data:", form_value)
-        for field, value in form_value.items():
-            print(f"Checking field: {field}")
-            print(f"Value: {value}")
+        donor_firstname= input.get("donor_firstname")
+        if not donor_firstname:
+                    flash("Donor First Name is required.", "danger")
+                    has_error =True
+                
+        donor_lastname = input.get("donor_lastname")
+        if not donor_lastname:
+                    flash("Donor Last Name is required.","danger")
+                    has_error =True
 
-            # todo add-2
-            if not value and field == "donor_firstname":
-                flash("Donor First Name is required.", "danger")
-                has_error = True
-            # todo add-3
-            elif not value and field == "donor_lastname":
-                flash("Donor Last Name is required.", "danger")
-                has_error = True
-            # todo add-4
-            elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
-                flash("Invalid email format. Please enter a valid email address", "danger")
-                has_error = True
-            # todo add-5
-            elif not value and field == "organization_id":
-                flash("Organization ID is required.", "danger")
-                has_error = True
-            # todo add-6
-            elif not value and field == "item_name":
-                flash("Item name is required.", "danger")
-                has_error = True
-
-            # todo add-8
-            elif not value and field == "item_quantity":
-                flash("Item quantity is required.", "danger")
-                has_error = True
-
-            elif value is None or (not value.isnumeric() or int(value) <= 0):
-                flash("Item quantity must be a positive number.", "danger")
-                has_error = True
-            # todo add-9
-            elif not value and field == "donation_date":
-                try:
-                    donation_date = datetime.strptime(value, "%Y-%m-%d")
-                    thirty_days_ago = datetime.now() - timedelta(days=30)
-                    if donation_date < thirty_days_ago:
-                        flash("Donation date must be within the past 30 days.", "danger")
-                        has_error = True
-                except ValueError:
-                    flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
+        donor_email = input.get("donor_email")
+        if not  donor_email and not re.match(r"[^@]+@[^@]+\.[^@]+", donor_email):
+                    flash("Invalid email format. Please enter a valid email address", "danger")
                     has_error = True
+        
+        organization_id = input.get("organization_id")
+        if not organization_id:
+                    flash("Organization ID is required.","danger")
+                    has_error =True
+        item_name = input.get("item_name")
+        if not item_name:
+                    flash("Item name is required.","danger")
+                    has_error =True
+                
+        item_description= input.get("item_description")
 
-        if not form_value["organization_id"][0].isnumeric():
-            flash("Organization ID must be a numeric value.", "danger")
-            has_error = True
+        item_quantity =input.get("item_quantity")
+        if not item_quantity or int(item_quantity) <1:
+                    flash("Item quantity is required and should be positive.","danger")
+                    has_error =True
+                
+        donation_date =input.get("donation_date")
+        if not donation_date:
+                    try:
+                        donation_date = datetime.strptime(donation_date, "%Y-%m-%d")
+                        thirty_days_ago = datetime.now() - timedelta(days=30)
+                        if donation_date < thirty_days_ago:
+                            flash("Donation date must be within the past 30 days.", "danger")
+                            has_error = True
+                    except ValueError:
+                        flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
+                        has_error = True
 
+        comments =input.get("comments")
+        
+        # for field,values in form_value.items():
+        #     for  value in values:
+        #         #todo add-2
+        #         if not value and field == "donor_firstname":
+        #             flash("Donor First Name is required.", "danger")
+        #             has_error =True
+        #         #todo add-3
+        #         elif not value and field == "donor_lastname":
+        #             flash("Donor Last Name is required.","danger")
+        #             has_error =True
+        #         #todo add-4
+        #         elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
+        #             flash("Invalid email format. Please enter a valid email address", "danger")
+        #             has_error = True
+        #         #todo add-5
+        #         elif not value and field == "organization_id":
+        #             flash("Organization ID is required.","danger")
+        #             has_error =True
+        #         #todo add-6
+        #         elif not value and field == "item_name":
+        #             flash("Item name is required.","danger")
+        #             has_error =True
+                
+        #         #todo add-8
+        #         el if not value and field =="item_quantity":
+        #             flash("Item quantity is required.","danger")
+        #             has_error =True
+                
+        #         elif not value.isnumeric() or int(value) <=0:
+        #             flash("Item quantity must be a positive number.","danger")
+        #             has_error =True
+        #         #todo add-9
+        #         elif not value and field == "donation_date":
+        #             try:
+        #                 donation_date = datetime.strptime(value, "%Y-%m-%d")
+        #                 thirty_days_ago = datetime.now() - timedelta(days=30)
+        #                 if donation_date < thirty_days_ago:
+        #                     flash("Donation date must be within the past 30 days.", "danger")
+        #                     has_error = True
+        #             except ValueError:
+        #                 flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
+        #                 has_error = True
+
+        #if not form_value["organization_id"][0].isnumeric():
+         #   flash("Organization ID must be a numeric value.", "danger")
+          #  has_error = True    
+
+       
         if not has_error:
             try:
                 result = DB.insertOne("""
-                    INSERT INTO IS601_MP3_Donations 
-                    (donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments)
-                    VALUES (%(donor_firstname)s, %(donor_lastname)s, %(donor_email)s, %(organization_id)s, %(item_name)s, %(item_description)s,%(item_quantity)s, %(donation_date)s, %(comments)s) """, form_value)
+                INSERT INTO IS601_MP3_Donations (donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments)
+                VALUES (%(donor_firstname)s, %(donor_lastname)s, %(donor_email)s, %(organization_id)s, %(item_name)s, %(item_description)s, %(item_quantity)s, %(donation_date)s, %(comments)s)
+                """,{
+                        'donor_firstname': donor_firstname,
+                        'donor_lastname': donor_lastname,
+                        'donor_email': donor_email,
+                        'organization_id': organization_id,
+                        'item_name': item_name,
+                        'item_description': item_description,
+                        'item_quantity': item_quantity,
+                        'donation_date': donation_date,
+                        'comments': comments
+                    }
+                )# <-- TODO add-11 add query and add arguments
                 
-                print("Query:", result.query)
-                print("Arguments:", result.arguments)
-
+#                print("Query:", result.query)
+ #               print("Arguments:", result.arguments)
+                
                 if result.status:
                     print("donation record created")
                     flash("Created Donation Record", "success")
             except Exception as e:
                 # TODO add-7 make message user friendly
-                flash(f"Unexpected error while trying to create donation record: {e}", "danger")
-
-    return render_template("manage_donation.html", donation=request.form)
+                flash(f"Unexpected error while trying to search add: {e}", "danger")
+    return render_template("manage_donation.html",donation=request.form)
 
 @donations.route("/edit", methods=["GET", "POST"])
 def edit():
@@ -238,60 +287,52 @@ def edit():
             # TODO add-10 donation_date is required and must be within the past 30 days
             # TODO add-11 comments are optional
             #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            form_value={}
+            #form_value={}
             has_error = False # use this to control whether or not an insert occurs
-            form_value["donor_firstname"] = input.get("donor_firstname")
-            form_value["donor_lastname"] = input.get("donor_lastname")
-            form_value["donor_email"] = input.get("donor_email")
-            form_value["organization_id"]= input.get("organization_id")
-            form_value["item_name"]= input.get("item_name")
-            form_value["item_description"]= input.get("item_description")
-            form_value["item_quantity"]=input.get("item_quantity")
-            form_value["donation_date"]=input.get("donation_date")
-            form_value["comments"]=input.get("comments")
-
-            for field,value in form_value.items():
-               
-                    #todo edit-2
-                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
-                    if not value and field == "donor_firstname":
+            # form_value["donor_firstname"] = input.get("donor_firstname")
+            # form_value["donor_lastname"] = input.get("donor_lastname")
+            # form_value["donor_email"] = input.get("donor_email")
+            # form_value["organization_id"]= input.get("organization_id")
+            # form_value["item_name"]= input.get("item_name")
+            # form_value["item_description"]= input.get("item_description")
+            # form_value["item_quantity"]=input.get("item_quantity")
+            # form_value["donation_date"]=input.get("donation_date")
+            # form_value["comments"]=input.get("comments")
+            donor_firstname= input.get("donor_firstname")
+            if not donor_firstname:
                         flash("Donor First Name is required.", "danger")
                         has_error =True
-                    #todo edit-3
-                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
-                    elif not value and field == "donor_lastname":
+                    
+            donor_lastname = input.get("donor_lastname")
+            if not donor_lastname:
                         flash("Donor Last Name is required.","danger")
                         has_error =True
-                    #todo edit-4
-                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
-                    elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
+
+            donor_email = input.get("donor_email")
+            if not  donor_email and not re.match(r"[^@]+@[^@]+\.[^@]+", donor_email):
                         flash("Invalid email format. Please enter a valid email address", "danger")
                         has_error = True
-                    #todo edit-5
-                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
-                    elif not value and field == "organization_id":
+            
+            organization_id = input.get("organization_id")
+            if not organization_id:
                         flash("Organization ID is required.","danger")
                         has_error =True
-                    #todo edit-6
-                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
-                    elif not value and field == "item_name":
+            item_name = input.get("item_name")
+            if not item_name:
                         flash("Item name is required.","danger")
                         has_error =True
                     
-                    #todo edit-8
-                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
-                    elif not value and field =="item_quantity":
-                        flash("Item quantity is required.","danger")
+            item_description= input.get("item_description")
+
+            item_quantity =input.get("item_quantity")
+            if not item_quantity or int(item_quantity) <1:
+                        flash("Item quantity is required and should be positive.","danger")
                         has_error =True
                     
-                    elif value is not None and (not value.isnumeric() or int(value) <= 0):
-                        flash("Item quantity must be a positive number.","danger")
-                        has_error =True
-                    #todo edit-9
-                    #Zahooruddin zohaib moahmmed-zm254-11/20/23
-                    elif not value and field == "donation_date":
+            donation_date =input.get("donation_date")
+            if not donation_date:
                         try:
-                            donation_date = datetime.strptime(form_value["donation_date"][0], "%Y-%m-%d")
+                            donation_date = datetime.strptime(donation_date, "%Y-%m-%d")
                             thirty_days_ago = datetime.now() - timedelta(days=30)
                             if donation_date < thirty_days_ago:
                                 flash("Donation date must be within the past 30 days.", "danger")
@@ -299,6 +340,57 @@ def edit():
                         except ValueError:
                             flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
                             has_error = True
+
+            comments =input.get("comments")
+                # for field,values in form_value.items():
+            #     for  value in values:
+            #         #todo edit-2
+            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            #         if not value and field == "donor_firstname":
+            #             flash("Donor First Name is required.", "danger")
+            #             has_error =True
+            #         #todo edit-3
+            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            #         elif not value and field == "donor_lastname":
+            #             flash("Donor Last Name is required.","danger")
+            #             has_error =True
+            #         #todo edit-4
+            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            #         elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
+            #             flash("Invalid email format. Please enter a valid email address", "danger")
+            #             has_error = True
+            #         #todo edit-5
+            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            #         elif not value and field == "organization_id":
+            #             flash("Organization ID is required.","danger")
+            #             has_error =True
+            #         #todo edit-6
+            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            #         elif not value and field == "item_name":
+            #             flash("Item name is required.","danger")
+            #             has_error =True
+                    
+            #         #todo edit-8
+            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            #         elif not value and field =="item_quantity":
+            #             flash("Item quantity is required.","danger")
+            #             has_error =True
+                    
+            #         elif not value.isnumeric() or int(value) <=0:
+            #             flash("Item quantity must be a positive number.","danger")
+            #             has_error =True
+            #         #todo edit-9
+            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            #         elif not value and field == "donation_date":
+            #             try:
+            #                 donation_date = datetime.strptime(form_value["donation_date"][0], "%Y-%m-%d")
+            #                 thirty_days_ago = datetime.now() - timedelta(days=30)
+            #                 if donation_date < thirty_days_ago:
+            #                     flash("Donation date must be within the past 30 days.", "danger")
+            #                     has_error = True
+            #             except ValueError:
+            #                 flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
+            #                 has_error = True
 
             if not has_error:
                 try:
@@ -312,9 +404,20 @@ def edit():
                     organization_id = %(organization_id)s,
                     item_name = %(item_name)s,
                     item_description = %(item_description)s,
-                    donation_date = %(donation_date)s
+                    item_quantity = %(item_quantity)s,
+                    donation_date = %(donation_date)s,
+                    comments = %(comments)s
                     WHERE id = %(donation_id)s
-                    """, form_value)
+                    """, {'donor_firstname': donor_firstname,
+                        'donor_lastname': donor_lastname,
+                        'donor_email': donor_email,
+                        'organization_id': organization_id,
+                        'item_name': item_name,
+                        'item_description': item_description,
+                        'item_quantity': item_quantity,
+                        'donation_date': donation_date,
+                        'comments': comments,
+                        'donation_id': id})
                     
                     if result.status:
                         flash("Updated record", "success")
@@ -327,11 +430,20 @@ def edit():
         try:
             # TODO edit-14 fetch the updated data 
             #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            result = DB.selectOne("""SELECT d.id, d.donor_firstname, d.donor_lastname, d.donor_email, d.organization_id, 
-                    d.item_name, d.item_description, d.item_quantity, d.donation_date, d.comments, o.name as organization_name
-                    FROM IS601_MP3_Donations d
-                    LEFT JOIN IS601_MP3_Organizations o ON d.organization_id = o.id
-                    WHERE d.id = %(id)s""", {"id": id})
+            result = DB.selectOne("""SELECT d.id,
+                                   donor_firstname,
+                                   donor_lastname, 
+                                  donor_email, 
+                                  organization_id, 
+                                    item_name,
+                                   item_description,
+                                   item_quantity, 
+                                    donation_date,
+                                    comments,
+                                    o.name
+                        FROM IS601_MP3_Donations d
+                        LEFT JOIN IS601_MP3_Organizations o ON d.organization_id = o.id
+                        WHERE d.id = %s""", id)
             
             if result.status:
                 row = result.row
@@ -346,28 +458,25 @@ def edit():
 @donations.route("/delete", methods=["GET"])
 def delete():
     # TODO delete-1 if id is missing, flash necessary message and redirect to search
+     # TODO delete-2 delete donation by id (fetch the id from the request)
+      # TODO delete-3 ensure a flash message shows for successful delete
+       # TODO delete-4 pass all argument except id to this route
+       # TODO delete-5 redirect to donation search
     #zahooruddin zohaib mohammed-zm254-11/20/23
     id = request.args.get("id")
+    args ={**request.args}
     if not id:
         flash("ID is missing. Please provide a valid ID.", "danger")
-        return redirect(url_for("donations.search"))
-    try:
-        # TODO delete-2 delete donation by id (fetch the id from the request)
-        #zahooruddin zohaib mohammed -zm254-11/20/23
-        result = DB.deleteOne("DELETE FROM IS601_MP3_Donations WHERE id = %(id)s", {"id": id})
-        if result.status:  
-            # TODO delete-3 ensure a flash message shows for successful delete
-            #zahooruddin zohaib Mohammed-zm254-11/20/23
-            flash("Successfully deleted the donation record.", "success")
-        else:
-            # TODO delete-4 pass all argument except id to this route
-            #zahooruddin zohaib mohammed-zm254-11/20/23
-            flash("Failed to delete the donation record.", "danger")
-            return redirect(url_for("donations.search", **request.args))
-    except Exception as e:
-        # TODO delete-5 redirect to donation search
-        #zahooruddin zohaib Mohammed-zm254-11/20/23
-        flash(f"Unexpected error while trying to delete the donation record: {e}", "danger")
-
-
+    if id:    
+        try:
+           
+            #zahooruddin zohaib mohammed -zm254-11/20/23
+            result = DB.delete("DELETE FROM IS601_MP3_Donations WHERE id = %s", id)
+            if result.status:  
+                flash("Successfully deleted the donation record.", "success")
+          
+        except Exception as e:
+            print(e)
+            flash(f"Unexpected error while trying to delete the donation record: {e}", "danger")
+        del args["id"]
     return redirect(url_for("donations.search", **request.args))

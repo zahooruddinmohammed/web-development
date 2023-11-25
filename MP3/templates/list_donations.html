@@ -43,11 +43,22 @@
             <div class="col">
                 <label class="visually-hidden"
                     for="organization">Organization</label>
-                {{organization_dropdown(request.args.get("organization"))}}
+                {{organization_dropdown(request.args.get("organization_id"))}}
             </div>
             <!-- sort filter -->
             {# TODO pass/set the columns that can be used for sort/filter (i.e. allowed_columns) #}
-            {{sort_filter(cols=[])}}
+            {{sort_filter(cols=[
+                ("donor_firstname", "donor firstname"),
+                ("donor_lastname", "donor lastname"),
+                ("donor_email", "donor email"),
+                ("organization_name", "organization name"),
+                ("item_name", "item name"),
+                ("item_description", "item description"),
+                ("item_quantity", "item quantity"),
+                ("donation_date", "donation date"),
+                ("comments", "Comments"),
+                ("created", "Created"),
+                ("modified", "Modified")])}}
             <!--limit filter-->
             <div class="col">
                 <label class="visually-hidden" for="limit">Limit</label>
@@ -73,6 +84,7 @@
                 {% for column in rows[0].keys() %}
                     <th>{{column | replace('_', ' ')}}</th>
                 {% endfor %}
+                
                 <!-- keep this -->
                 <th>Actions</th>
             </tr>
@@ -85,15 +97,19 @@
             a delete button that passes the donation id and the request args to the donation delete route
             #}
             <!-- iterate over rows and generate proper tr and td elements with the data -->
-            {% for r in rows %}
+            
+                
+                {% for r in rows %}
             <tr>
                 {% for k,v in r.items() %}
                     <td>{{v}}</td>
                 {% endfor %}
                 <td>
                     <!-- Edit and Delete Buttons -->
-                    <a href="{{url_for('donations.edit',id=r.get('id'))}}" class="btn btn-primary">Edit</a>
-                    <a href="{{url_for('donations.delete',id=r.get('id'), **request.args)}}" class="btn btn-danger">Delete</a>
+                    <a href="{{ url_for('donations.edit', id=r.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                
+                    <a href="{{ url_for('donations.delete', id=r.id) }}?{{ request.args.to_dict() }}" class="btn btn-outline-danger btn-sm">Del</a>
+
                 </td>
             </tr>
             {% endfor %}

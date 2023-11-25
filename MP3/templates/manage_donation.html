@@ -53,9 +53,14 @@ Donation{% endblock %}
                 <input type="date" class="form-control" id="donation_date" name="donation_date" required value="{{ donation.get('donation_date') }}">
                 <br>
 
+                <label for="comments" class="form-label">Comment</label>
+                <input type="text" class="form-control" id="comments" name="comments" required value="{{ donation.get('comments') }}">
+                <br>
             <!-- organization selection-->
             {# use the below for organization selection #}
-            {{ organization_dropdown(val=donation.get("organization_id")) }}
+                <label for="organization_id" class="col-sm-2 col-form-label">Organization</label>
+                <input {{ organization_dropdown(val=donation.get("organization_id")) }}>
+                
             <input type="submit" class="btn btn-primary"
                 value="Save Donation" />
         </form>

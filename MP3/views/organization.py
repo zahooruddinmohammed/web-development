@@ -154,7 +154,7 @@ def add():
                 result = DB.insertOne("""
                 INSERT INTO IS601_MP3_Organizations (name, address, city, state, country, zip, website, description)
                 VALUES
-                (:name, :address, :city, :state, :country, :zip, :website , :description)
+                (:name, :address, :city, :state, :country, :zip, :website , :description)s)
                 """,  {
                     "name": request.form['name'],
                     "address": request.form['address'],
