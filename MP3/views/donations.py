@@ -10,6 +10,7 @@ def search():
     organization_name = ""
     # DO NOT DELETE PROVIDED COMMENTS
     # TODO search-1 retrieve donation id as id, donor_firstname, donor_lastname, donor_email, organization_id, item_name, item_description, item_quantity, donation_date, comments, organization_name using a LEFT JOIN
+    #zahooruddin zohaib moahmmed -zm254-18/11/23
     query = """ SELECT
             d.id,
             donor_firstname,
@@ -36,7 +37,7 @@ def search():
     # TODO search-8 append sorting if column and order are provided and within the allowed columns and order options (asc, desc)
     # TODO search-9 append limit (default 10) or limit greater than 1 and less than or equal to 100
     # TODO search-10 provide a proper error message if limit isn't a number or if it's out of bounds
-    #zm254-10/18/23
+    #zahooruddin zohaib moahmmed -zm254-18/11/23
     # TODO search-2 get fn, ln, email, organization_id, column, order, limit from request args
     donor_firstname = request.args.get("donor_firstname")
     donor_lastname = request.args.get("donor_lastname")
@@ -78,7 +79,7 @@ def search():
             if column == 'organization_name':
                   column = 'organization_name'
             query += f" ORDER BY {column} {order}"
-    #zm254-10/18/23
+    #zahooruddin zohaib moahmmed -zm254-18/11/23
 
 
     
@@ -137,7 +138,7 @@ def add():
         # TODO add-8 item_quantity is required and must be more than 0 (flash proper error message)
         # TODO add-9 donation_date is required and must be within the past 30 days
         # TODO add-10 comments are optional
-        
+        #zahooruddin zohaib moahmmed -zm254-18/11/23
         has_error = False # use this to control whether or not an insert occurs
 
         donor_firstname= input.get("donor_firstname")
@@ -185,53 +186,6 @@ def add():
 
         comments =input.get("comments")
         
-        # for field,values in form_value.items():
-        #     for  value in values:
-        #         #todo add-2
-        #         if not value and field == "donor_firstname":
-        #             flash("Donor First Name is required.", "danger")
-        #             has_error =True
-        #         #todo add-3
-        #         elif not value and field == "donor_lastname":
-        #             flash("Donor Last Name is required.","danger")
-        #             has_error =True
-        #         #todo add-4
-        #         elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
-        #             flash("Invalid email format. Please enter a valid email address", "danger")
-        #             has_error = True
-        #         #todo add-5
-        #         elif not value and field == "organization_id":
-        #             flash("Organization ID is required.","danger")
-        #             has_error =True
-        #         #todo add-6
-        #         elif not value and field == "item_name":
-        #             flash("Item name is required.","danger")
-        #             has_error =True
-                
-        #         #todo add-8
-        #         el if not value and field =="item_quantity":
-        #             flash("Item quantity is required.","danger")
-        #             has_error =True
-                
-        #         elif not value.isnumeric() or int(value) <=0:
-        #             flash("Item quantity must be a positive number.","danger")
-        #             has_error =True
-        #         #todo add-9
-        #         elif not value and field == "donation_date":
-        #             try:
-        #                 donation_date = datetime.strptime(value, "%Y-%m-%d")
-        #                 thirty_days_ago = datetime.now() - timedelta(days=30)
-        #                 if donation_date < thirty_days_ago:
-        #                     flash("Donation date must be within the past 30 days.", "danger")
-        #                     has_error = True
-        #             except ValueError:
-        #                 flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
-        #                 has_error = True
-
-        #if not form_value["organization_id"][0].isnumeric():
-         #   flash("Organization ID must be a numeric value.", "danger")
-          #  has_error = True    
-
        
         if not has_error:
             try:
@@ -250,7 +204,7 @@ def add():
                         'comments': comments
                     }
                 )# <-- TODO add-11 add query and add arguments
-                
+                #zahooruddin zohaib moahmmed -zm254-18/11/23        
 #                print("Query:", result.query)
  #               print("Arguments:", result.arguments)
                 
@@ -259,13 +213,14 @@ def add():
                     flash("Created Donation Record", "success")
             except Exception as e:
                 # TODO add-7 make message user friendly
+                #zahooruddin zohaib moahmmed -zm254-18/11/23
                 flash(f"Unexpected error while trying to search add: {e}", "danger")
     return render_template("manage_donation.html",donation=request.form)
 
 @donations.route("/edit", methods=["GET", "POST"])
 def edit():
     row = {}
-    
+    #zahooruddin zohaib moahmmed -zm254-18/11/23
     # TODO edit-1 request args id is required (flash proper error message)
     input = request.form
     id = request.args.get("id")
@@ -287,17 +242,8 @@ def edit():
             # TODO add-10 donation_date is required and must be within the past 30 days
             # TODO add-11 comments are optional
             #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #form_value={}
             has_error = False # use this to control whether or not an insert occurs
-            # form_value["donor_firstname"] = input.get("donor_firstname")
-            # form_value["donor_lastname"] = input.get("donor_lastname")
-            # form_value["donor_email"] = input.get("donor_email")
-            # form_value["organization_id"]= input.get("organization_id")
-            # form_value["item_name"]= input.get("item_name")
-            # form_value["item_description"]= input.get("item_description")
-            # form_value["item_quantity"]=input.get("item_quantity")
-            # form_value["donation_date"]=input.get("donation_date")
-            # form_value["comments"]=input.get("comments")
+            
             donor_firstname= input.get("donor_firstname")
             if not donor_firstname:
                         flash("Donor First Name is required.", "danger")
@@ -321,7 +267,7 @@ def edit():
             if not item_name:
                         flash("Item name is required.","danger")
                         has_error =True
-                    
+            #zahooruddin zohaib moahmmed -zm254-18/11/23        
             item_description= input.get("item_description")
 
             item_quantity =input.get("item_quantity")
@@ -342,56 +288,6 @@ def edit():
                             has_error = True
 
             comments =input.get("comments")
-                # for field,values in form_value.items():
-            #     for  value in values:
-            #         #todo edit-2
-            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #         if not value and field == "donor_firstname":
-            #             flash("Donor First Name is required.", "danger")
-            #             has_error =True
-            #         #todo edit-3
-            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #         elif not value and field == "donor_lastname":
-            #             flash("Donor Last Name is required.","danger")
-            #             has_error =True
-            #         #todo edit-4
-            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #         elif not value and field == "donor_email" and not re.match(r"[^@]+@[^@]+\.[^@]+", value):
-            #             flash("Invalid email format. Please enter a valid email address", "danger")
-            #             has_error = True
-            #         #todo edit-5
-            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #         elif not value and field == "organization_id":
-            #             flash("Organization ID is required.","danger")
-            #             has_error =True
-            #         #todo edit-6
-            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #         elif not value and field == "item_name":
-            #             flash("Item name is required.","danger")
-            #             has_error =True
-                    
-            #         #todo edit-8
-            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #         elif not value and field =="item_quantity":
-            #             flash("Item quantity is required.","danger")
-            #             has_error =True
-                    
-            #         elif not value.isnumeric() or int(value) <=0:
-            #             flash("Item quantity must be a positive number.","danger")
-            #             has_error =True
-            #         #todo edit-9
-            #         #Zahooruddin zohaib moahmmed-zm254-11/20/23
-            #         elif not value and field == "donation_date":
-            #             try:
-            #                 donation_date = datetime.strptime(form_value["donation_date"][0], "%Y-%m-%d")
-            #                 thirty_days_ago = datetime.now() - timedelta(days=30)
-            #                 if donation_date < thirty_days_ago:
-            #                     flash("Donation date must be within the past 30 days.", "danger")
-            #                     has_error = True
-            #             except ValueError:
-            #                 flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
-            #                 has_error = True
-
             if not has_error:
                 try:
                     # TODO edit-12 fill in proper update query

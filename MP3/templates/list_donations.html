@@ -19,6 +19,7 @@
             limit (default 10)
             ensure all fields prefill with request arg data if provided
             #}
+            {#zm254-11-17-23#}
             <!--first name-->
             <div class="col">
                 <label class="visually-hidden" for="fn">First Name</label>
@@ -47,6 +48,7 @@
             </div>
             <!-- sort filter -->
             {# TODO pass/set the columns that can be used for sort/filter (i.e. allowed_columns) #}
+            {#zm254-11-17-23#}
             {{sort_filter(cols=[
                 ("donor_firstname", "donor firstname"),
                 ("donor_lastname", "donor lastname"),
@@ -80,6 +82,7 @@
                 {# generate th tags for each column to display #}
                 {# don't show any id or organization_id columns #}
                 {# IMPORTANT use table column names as the headings, replace _ with space via filter #}
+                {#zm254-11-17-23#}
                 <!-- add th elements -->
                 {% for column in rows[0].keys() %}
                     <th>{{column | replace('_', ' ')}}</th>
@@ -96,6 +99,7 @@
             an edit button that passes the donation id to donation edit
             a delete button that passes the donation id and the request args to the donation delete route
             #}
+            {#zm254-11-17-23#}
             <!-- iterate over rows and generate proper tr and td elements with the data -->
             
                 

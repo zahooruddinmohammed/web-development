@@ -21,6 +21,7 @@ Donation{% endblock %}
             organization (provided) (required)
             if a validation error occurs, the inserted form data should persist
             #}
+            {#zm254-11-17-23#}
             <!--donor first name-->
                 <label class="form-label" for ="donor_firstname">Donor First Name</label>
                 <input type="text" name="donor_firstname" class="form-control" id="donor_firstname" placeholder="donor_firstname" value="{{donation.get('donor_firstname') | default('')}}"required>
@@ -57,10 +58,11 @@ Donation{% endblock %}
                 <input type="text" class="form-control" id="comments" name="comments" required value="{{ donation.get('comments') }}">
                 <br>
             <!-- organization selection-->
+            {#zm254-11-17-23#}
             {# use the below for organization selection #}
                 <label for="organization_id" class="col-sm-2 col-form-label">Organization</label>
                 <input {{ organization_dropdown(val=donation.get("organization_id")) }}>
-                
+
             <input type="submit" class="btn btn-primary"
                 value="Save Donation" />
         </form>

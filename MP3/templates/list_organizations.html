@@ -17,6 +17,7 @@
             #}
             {#zm254-11-17-23#}
             <!--name filter-->
+            {#zm254-11-17-23#}
             <div class="col">
                 <label class="visually-hidden" for="name">Name</label>
                 <input type="text" name="name" class="form-control" id="name" placeholder="Name" value="{{request.args.get('name') or ''}}">
@@ -24,9 +25,11 @@
             <!-- country state filter-->
             {{country_state_selector(layout="horizontal")}}
             <!-- sort filter -->
+
             {# TODO pass/set the columns that can be used for sort/filter (i.e. allowed_columns) #}
             {{sort_filter(cols=[])}}
             <!--limit filter-->
+            {#zm254-11-17-23#}
             <div class="col">
                 <label class="visually-hidden" for="limit">Limit</label>
                 <input class="form-control" type="number" min="1" max="100" id="limit" name="limit" value="{{request.args.get('limit') or '10'}}" />
@@ -68,6 +71,7 @@
                 an edit button that passes the organization id to organization edit
                 a delete button that passes the organization id and the request args to the organization delete route
                 #}
+                {#zm254-11-17-23#}
                 <!-- iterate over rows and generate proper tr and td elements with the data -->
                 {% for r in rows %}0
                 <tr>
@@ -80,6 +84,7 @@
                             <td>{{v}}</td>
                         {% endif %}
                     {% endfor %}
+                    {#zm254-11-17-23#}
                     <td>
                         <a href="{{url_for('donations.search',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">view</a>
                     </td>
