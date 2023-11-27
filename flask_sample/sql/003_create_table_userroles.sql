@@ -6,7 +6,5 @@ CREATE TABLE
         is_active tinyint(1) default 1,
         created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        UNIQUE KEY (role_id, user_id),
-        FOREIGN KEY (role_id) REFERENCES IS601_Roles(id),
-        FOREIGN KEY (user_id) REFERENCEs IS601_Users(id)
+        UNIQUE KEY (role_id, user_id)
     )

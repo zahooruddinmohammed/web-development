@@ -6,3 +6,4 @@ class Role(JsonSerializable):
         self.name = name
         self.description = description
         self.is_active = 1 if is_active else 0
+    

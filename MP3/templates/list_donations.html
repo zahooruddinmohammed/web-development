@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+{% block title %}Donations{% endblock %}
+{% block content %}
+{% from "organization_dropdown.html" import organization_dropdown %}
+{% from "sort_filter.html" import sort_filter %}
+<div class="container-fluid">
+    <div class="h1 text-center">{{organization_name}}
+        Donations</div>
+    <form method="GET">
+        <div class="row">
+            {# TODO
+            build a horizontal filter/sort form with
+            donor first name (show as first name, but name should be fn)
+            donor last_name (show as last name, but name should be ln)
+            donor email (validate as text, not email, so partial match works)
+            item name
+            organization (provided) (name is organization value is the id)
+            sort/order (using allowed_columns and provided partial template)
+            limit (default 10)
+            ensure all fields prefill with request arg data if provided
+            #}
+            {#zm254-11-17-23#}
+            <!--first name-->
+            <div class="col">
+                <label class="visually-hidden" for="fn">First Name</label>
+                <input type="text" name="fn" class="form-control" id="fn" placeholder="First Name" value="{{request.args.get('fn') or ''}}">
+            </div>
+            <!--last name-->
+            <div class="col">
+                <label class="visually-hidden" for="ln">Last Name</label>
+                <input type="text" name="ln" class="form-control" id="ln" placeholder="Last Name" value="{{request.args.get('ln') or ''}}">
+            </div>
+            <!--email-->
+            <div class="col">
+                <label class="form-label visually-hidden" for="email">Email</label>
+                <input type="text" id="email" class="form-control" name="email" placeholder="Email" value="{{request.args.get('email') or ''}}">
+            </div>
+            <!-- item name-->
+            <div class="col">
+                <label class="visually-hidden" for="item_name">Item Name</label>
+                <input type="text" name="item_name" class="form-control" id="item_name" placeholder="Item Name" value="{{request.args.get('item_name') or ''}}">
+            </div>
+            <!--organization-->
+            <div class="col">
+                <label class="visually-hidden"
+                    for="organization">Organization</label>
+                {{organization_dropdown(request.args.get("organization_id"))}}
+            </div>
+            <!-- sort filter -->
+            {# TODO pass/set the columns that can be used for sort/filter (i.e. allowed_columns) #}
+            {#zm254-11-17-23#}
+            {{sort_filter(cols=[
+                ("donor_firstname", "donor firstname"),
+                ("donor_lastname", "donor lastname"),
+                ("donor_email", "donor email"),
+                ("organization_name", "organization name"),
+                ("item_name", "item name"),
+                ("item_description", "item description"),
+                ("item_quantity", "item quantity"),
+                ("donation_date", "donation date"),
+                ("comments", "Comments"),
+                ("created", "Created"),
+                ("modified", "Modified")])}}
+            <!--limit filter-->
+            <div class="col">
+                <label class="visually-hidden" for="limit">Limit</label>
+                <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" value="{{request.args.get('limit') or 10}}">
+            </div>
+
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Filter" />
+            </div>
+            <div class="col">
+                <a href="?" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+    <table class="table">
+        {% if rows and rows|length > 0 %}
+        <thead>
+            <tr class="text-capitalize">
+                {# generate th tags for each column to display #}
+                {# don't show any id or organization_id columns #}
+                {# IMPORTANT use table column names as the headings, replace _ with space via filter #}
+                {#zm254-11-17-23#}
+                <!-- add th elements -->
+                {% for column in rows[0].keys() %}
+                    <th>{{column | replace('_', ' ')}}</th>
+                {% endfor %}
+
+                <!-- keep this -->
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {# generate tr with td tags for each piece of data #}
+            {# don't show any id or organization_id columns #}
+            {# in the last column add the following
+            an edit button that passes the donation id to donation edit
+            a delete button that passes the donation id and the request args to the donation delete route
+            #}
+            {#zm254-11-17-23#}
+            <!-- iterate over rows and generate proper tr and td elements with the data -->
+
+
+                {% for r in rows %}
+            <tr>
+                {% for k,v in r.items() %}
+                    <td>{{v}}</td>
+                {% endfor %}
+                <td>
+                    <!-- Edit and Delete Buttons -->
+                    <a href="{{ url_for('donations.edit', id=r.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+
+                    <a href="{{ url_for('donations.delete', id=r.id) }}" class="btn btn-outline-danger btn-sm">Del</a>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        {% else %}
+        <tbody>
+            <tr>
+                <td colspan="100%">No results to show</td>
+            </tr>
+        </tbody>
+        {% endif %}
+    </table>
+</div>
+{% endblock %}
