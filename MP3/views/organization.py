@@ -69,7 +69,7 @@ def search():
         query += f" ORDER BY {column} {order}"
         args['column'] = column
     
-    # TODO change this per the above requirements
+    limit = 10 # TODO change this per the above requirements
     
     if limit:
         try:
