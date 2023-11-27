@@ -64,17 +64,32 @@ def search():
             organization.id
             """
     if column and order and column in allowed_columns and order in ("asc", "desc"):
-        column = "organization." + str(column)
-        query += f"ORDER BY {column} {order}"
-        args['column'] = f"%{column}%"
-    limit = 10 # TODO change this per the above requirements
+    # Use the correct column for sorting
+        column = "organization." + column
+        query += f" ORDER BY {column} {order}"
+        args['column'] = column
     
+    # TODO change this per the above requirements
+    
+    if limit:
+        try:
+            limit = int(limit)
+            if 1 < limit <= 100:
+                limit = limit
+            else:
+                limit = 10
+                flash("Limit must be between 2 and 100", "error")
+        except ValueError:
+            limit = 10
+            flash("Limit must be a valid number", "error")
     if not limit:
-        limit = 10
-    query += " LIMIT "+str(limit)
+          limit =10
+    
+    query += " LIMIT %(limit)s"
     args["limit"] = limit
     print("query",query)
     print("args", args)
+    
     try:
         result = DB.selectAll(query, args)
         #print(f"result {result.rows}")

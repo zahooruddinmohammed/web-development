@@ -19,8 +19,8 @@
             <!--name filter-->
             {#zm254-11-17-23#}
             <div class="col">
-                <label class="visually-hidden" for="name">Name</label>
-                <input type="text" name="name" class="form-control" id="name" placeholder="Name" value="{{request.args.get('name') or 'Name'}}">
+                <label class="form-label visually-hidden" for="name">Organization Name</label>
+                <input type="text" id="name" class="form-control" name="name" placeholder="organization name" value="{{request.args.get('name') or ''}}">
             </div>
             <!-- country state filter-->
             {{country_state_selector(layout="horizontal")}}
@@ -36,14 +36,13 @@
             <!--limit filter-->
             {#zm254-11-17-23#}
             <div class="col">
-                <label class="visually-hidden" for="limit">Limit</label>
-                <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" value="{{request.args.get('limit') or 10}}">
+                <label class="form-label visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" min="1" max="100" placeholder="max records" id="limit" name="limit" value="{{request.args.get('limit') or 10}}">
             </div>
             
             <div class="col">
                 <input type="submit" class="btn btn-primary" value="Filter" />
             </div>
-            
             <div class="col">
                 <a href="?" class="btn btn-secondary">Reset</a>
             </div>
@@ -60,8 +59,10 @@
                     {#zm254-11-17-23#}
                     <!-- add th elements -->
                     {% for r in rows[0] %}
-                    <th>{{r | replace('_', ' ')}}</th>
-                    {% endfor %}
+                        {% if r != 'organization_id' and r != 'id' %}
+                            <th>{{r | replace('_', ' ')|capitalize }}</th>
+                        {% endif %}
+                            {% endfor %}
                     <!-- keep this -->
                     <th>Actions</th>
                 </tr>
@@ -81,16 +82,13 @@
                 <!-- iterate over rows and generate proper tr and td elements with the data -->
                 {% for r in rows %}
                 <tr>
-                    {% for k, v in r.items() %}
-                        {% if k == "website"%}
-                            <td>
-                                <a href="{{v}}">{{v}}</a>
-                            </td>
-                        {% else %}
-                            <td>{{v}}</td>
+                    {% for column, value in r.items() %}
+                        {% if column != 'id' and column != 'organization_id' and column != 'created' and column != 'modified' %}
+                            <td>{{value }}</td>
                         {% endif %}
                     {% endfor %}
-                    {#zm254-11-17-23#}
+                    
+                        {#zm254-11-17-23#}
                     <td>
                         <a href="{{url_for('donations.search',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">view</a>
                     </td>
