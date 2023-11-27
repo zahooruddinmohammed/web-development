@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% block title %}Organization Directory{% endblock %}
+{% block content %}
+{% from "country_state_selector.html" import country_state_selector %}
+{% from "sort_filter.html" import sort_filter %}
+<div class="container-fluid">
+    <div class="h1 text-center">Organization Directory</div>
+    <form method="GET">
+        <div class="row">
+            {# TODO
+            build a horizontal filter/sort form with
+            name (show as organization name but name field should be name)
+            country/state (provided)
+            sort/order (using allowed_columns and provided partial template)
+            limit (default 10)
+            ensure all fields prefill with request arg data if provided
+            #}
+            {#zm254-11-17-23#}
+            <!--name filter-->
+            {#zm254-11-17-23#}
+            <div class="col">
+                <label class="form-label visually-hidden" for="name">Organization Name</label>
+                <input type="text" id="name" class="form-control" name="name" placeholder="organization name" value="{{request.args.get('name') or ''}}">
+            </div>
+            <!-- country state filter-->
+            {{country_state_selector(layout="horizontal")}}
+            <!-- sort filter -->
+
+            {# TODO pass/set the columns that can be used for sort/filter (i.e. allowed_columns) #}
+            {{sort_filter(cols=[("name", "Name"),
+            ("city", "City"),
+            ("country", "Country"),
+            ("state", "State"),
+            ("modified", "Modified"),
+            ("created", "Created")])}}
+            <!--limit filter-->
+            {#zm254-11-17-23#}
+            <div class="col">
+                <label class="form-label visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" min="1" max="100" placeholder="max records" id="limit" name="limit" value="{{request.args.get('limit') or 10}}">
+            </div>
+            
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Filter" />
+            </div>
+            <div class="col">
+                <a href="?" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table">
+            {% if rows and rows|length > 0 %}
+            <thead>
+                <tr class="text-capitalize">
+                    {# generate th tags for each column to display #}
+                    {# don't show any id or organization_id columns #}
+                    {# IMPORTANT use table column names as the headings, replace _ with space via filter #}
+                    {#zm254-11-17-23#}
+                    <!-- add th elements -->
+                    {% for r in rows[0] %}
+                        {% if r != 'organization_id' and r != 'id' %}
+                            <th>{{r | replace('_', ' ')|capitalize }}</th>
+                        {% endif %}
+                            {% endfor %}
+                    <!-- keep this -->
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {# generate tr with td tags for each piece of data #}
+                {# don't show any id or organization_id columns #}
+                {# if the td is for website, display it as a link where the text is "website" and the url is the
+                website url #}
+                {# in the last column add the following
+                a view button that passes the organization id to donation search (this will be an organization's donation
+                list)
+                an edit button that passes the organization id to organization edit
+                a delete button that passes the organization id and the request args to the organization delete route
+                #}
+                {#zm254-11-17-23#}
+                <!-- iterate over rows and generate proper tr and td elements with the data -->
+                {% for r in rows %}
+                <tr>
+                    {% for column, value in r.items() %}
+                        {% if column != 'id' and column != 'organization_id' and column != 'created' and column != 'modified' %}
+                            <td>{{value }}</td>
+                        {% endif %}
+                    {% endfor %}
+                    
+                        {#zm254-11-17-23#}
+                    <td>
+                        <a href="{{url_for('donations.search',organization=r.get('id'))}}" class="btn btn-secondary btn-sm">view</a>
+                    </td>
+                    <td>
+                        <a href="{{url_for('organization.edit', id=r.id) }}" class="btn btn-secondary btn-sm">edit</a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('organization.delete', id=r.id, **request.args.to_dict()) }}" class="btn btn-secondary btn-sm">delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}
