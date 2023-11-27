@@ -12,10 +12,21 @@ def search():
     # don't do SELECT * and replace the below "..." portion
     #zahooruddin zohaib Mohammed-zm254-11/20/23
     allowed_columns = ["name", "city", "country", "state", "modified", "created"]
-    query = """SELECT id, name, address, city, country, state, zip, website,
-            (SELECT COUNT(*) FROM IS601_MP3_Donations WHERE organization_id = IS601_MP3_Organizations.id) as donations,
-            created
-            FROM IS601_MP3_Organizations WHERE 1=1"""
+    query = """SELECT
+            organization.id,
+            organization.name,
+            organization.address,
+            organization.city,
+            organization.country,
+            organization.state,
+            organization.zip,
+            organization.website,
+            COUNT(donation.id) AS donations
+            FROM
+                IS601_MP3_Organizations organization
+            LEFT JOIN
+                IS601_MP3_Donations donation ON organization.id = donation.organization_id
+            WHERE 1=1"""
     args = {} # <--- add values to replace %s/%(named)s placeholders
    
     
@@ -26,25 +37,44 @@ def search():
     # TODO search-6 append sorting if column and order are provided and within the allows columns and allowed order asc,desc
     # TODO search-7 append limit (default 10) or limit greater than or equal to 1 and less than or equal to 100
     # TODO search-8 provide a proper error message if limit isn't a number or if it's out of bounds
-    filters = [("name", "name"), ("country", "country"), ("state", "state")]
-    for filter_arg, filter in filters:
-        if request.args.get(filter_arg):
-            query += f" AND {filter} LIKE %s"
-            args[f"%{request.args.get(filter_arg)}%"] = True
+    name = request.args.get('name')
+    country = request.args.get('country')
+    state = request.args.get('state')
+    column = request.args.get('column')
+    order = request.args.get('order')
+    limit = request.args.get('limit')
 
-    if request.args.get("order") and request.args.get("column"):
-        if request.args.get("column") in allowed_columns and request.args.get("order") in ["asc", "desc"]:
-            query += f" ORDER BY {request.args.get('column')} {request.args.get('order')}"
+    args['order'] = request.args.get('order')
+    args['limit'] = request.args.get('limit')
+
+    # TODO search-3 append a LIKE filter for name if provided
+    if name:
+        query += " AND organization.name LIKE %(name)s" 
+        args['name'] = f"%{name}%"
+    # TODO search-4 append an equality filter for country if provided
+    if country:
+        query += " AND organization.country = %(country)s"
+        args['country'] = f"%{country}%"
+    
+    if state:
+        query += " AND organization.state = %(state)s"
+        args['state'] = f"%{state}%"
+    query+= """
+            GROUP BY
+            organization.id
+            """
+    if column and order and column in allowed_columns and order in ("asc", "desc"):
+        column = "organization." + str(column)
+        query += f"ORDER BY {column} {order}"
+        args['column'] = f"%{column}%"
     limit = 10 # TODO change this per the above requirements
     
-    query += " LIMIT %(limit)s"
-    ql= int(request.args.get('limit',10))
-    if ql<1 or ql>100:
-        flash("Limit values should be in the range of 1-100; Defaulting to 10")
-        args["limit"]=10
-    else:
-        args["limit"]=ql 
-        
+    if not limit:
+        limit = 10
+    query += " LIMIT "+str(limit)
+    args["limit"] = limit
+    print("query",query)
+    print("args", args)
     try:
         result = DB.selectAll(query, args)
         #print(f"result {result.rows}")
@@ -108,6 +138,9 @@ def add():
                 flash('City is required','danger')
                 has_error = True
          #zahooruddin zohaib Mohammed-zm254-11/20/23
+        if not state:
+                flash('State is required','danger')
+                has_error = True 
         try:
             states = list(pycountry.subdivisions.get(country_code=country))
             state_codes = [s.code for s in states]
@@ -284,9 +317,10 @@ def delete():
     # TODO delete-1 if id is missing, flash necessary message and redirect to search
      #zahooruddin zohaib mohammed-zm254-11-20-23
     id = request.args.get('id')
+    args = {**request.args}
     if not id:
         flash("organziation id is reuqired.","danger")
-        return redirect(url_for("organization.search"))
+        
     try:
     # TODO delete-2 delete organization by id (note: you'll likely need to trigger a delete of all donations related to this organization first due to foreign key constraints)
      #zahooruddin zohaib mohammed-zm254-11-20-23
@@ -294,16 +328,16 @@ def delete():
         result = DB.delete("DELETE FROM IS601_MP3_Organizations WHERE id = %s", id)
 
         if result.status:
-            flash("Organization deleted successfully.","success")
-        else:
-            flash("Failed to delete organization.Please try again later.","danger")
+            flash("Deleted All Donations related to Organization","success")
+            result1 = DB.delete("DELETE FROM IS601_MP3_Organizations WHERE id = %s", id)
+        if result1.status:
+                flash("Deleted Organization", "success")
     except Exception as e:
     # TODO delete-3 ensure a flash message shows for successful delete
      #zahooruddin zohaib mohammed-zm254-11-20-23
         flash("An error occured while deleting the organization.try again later.","danger")
     # TODO delete-4 pass all argument except id to this route
      #zahooruddin zohaib mohammed-zm254-11-20-23
-    args = request.args.copy()
-    args.pop('id',None)
+    del args["id"]
     # TODO delete-5 redirect to organization search
     return redirect(url_for("organization.search",**args))
