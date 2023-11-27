@@ -62,6 +62,7 @@ Donation{% endblock %}
             {# use the below for organization selection #}
                 <label for="organization_id" class="col-sm-2 col-form-label">Organization</label>
                 <input {{ organization_dropdown(val=donation.get("organization_id")) }}>
+                
 
             <input type="submit" class="btn btn-primary"
                 value="Save Donation" />

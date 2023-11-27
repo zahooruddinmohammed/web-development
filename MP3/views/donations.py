@@ -37,6 +37,7 @@ def search():
     # TODO search-8 append sorting if column and order are provided and within the allowed columns and order options (asc, desc)
     # TODO search-9 append limit (default 10) or limit greater than 1 and less than or equal to 100
     # TODO search-10 provide a proper error message if limit isn't a number or if it's out of bounds
+    #zm254-10/18/23
     #zahooruddin zohaib moahmmed -zm254-18/11/23
     # TODO search-2 get fn, ln, email, organization_id, column, order, limit from request args
     donor_firstname = request.args.get("donor_firstname")
@@ -47,30 +48,24 @@ def search():
     column = request.args.get("column", )
     order = request.args.get("order", )
     limit = request.args.get("limit", )
-
     if donor_firstname:
         query += " AND donor_firstname LIKE %(donor_firstname)s"
         args["donor_firstname"] = f"%{'donor_firstname'}%"
-
     # TODO search-4 append like filter for donor_lastname if provided
     if donor_lastname:
         query += " AND donor_lastname LIKE %(donor_lastname)s"
         args["donor_lastname"] = f"%{'donor_lastname'}%"
-
     # TODO search-5 append like filter for donor_email if provided
     if donor_email:
         query += " AND donor_email LIKE %(donor_email)s"
         args["donor_email"] = f"%{'donor_email'}%"
-
     # TODO search-6 append like filter for item_name if provided
     if item_name:
         query += " AND item_name LIKE %(item_name)s"
         args["item_name"] = f"%{request.args.get('item_name')}%"
-
     if organization_id:
         query += " and d.organization_id=%(organization_id)s"
         args["organization_id"]= organization_id
-
     if column and order and column in allowed_columns  and order in ["asc","desc"]:
             if column == 'created':
                 column = 'd.created'
@@ -79,12 +74,12 @@ def search():
             if column == 'organization_name':
                   column = 'organization_name'
             query += f" ORDER BY {column} {order}"
+    #zm254-10/18/23
     #zahooruddin zohaib moahmmed -zm254-18/11/23
 
 
-    
-    #limit = request.args.get("limit", 10)
 
+    #limit = request.args.get("limit", 10)
     if limit:
         try:
             limit = int(limit)
@@ -121,8 +116,6 @@ def search():
     # TODO search-12 if request args has organization identifier set organization_name variable to the correct name
     allowed_columns_for_template = [(column, column.replace("_", " ").title()) for column in allowed_columns]
     return render_template("list_donations.html", organization_name=organization_name, rows=rows, allowed_columns=allowed_columns)
-
-
 @donations.route("/add", methods=["GET","POST"])
 def add():
     input = request.form
@@ -138,6 +131,7 @@ def add():
         # TODO add-8 item_quantity is required and must be more than 0 (flash proper error message)
         # TODO add-9 donation_date is required and must be within the past 30 days
         # TODO add-10 comments are optional
+
         #zahooruddin zohaib moahmmed -zm254-18/11/23
         has_error = False # use this to control whether or not an insert occurs
 
@@ -150,7 +144,6 @@ def add():
         if not donor_lastname:
                     flash("Donor Last Name is required.","danger")
                     has_error =True
-
         donor_email = input.get("donor_email")
         if not  donor_email and not re.match(r"[^@]+@[^@]+\.[^@]+", donor_email):
                     flash("Invalid email format. Please enter a valid email address", "danger")
@@ -166,7 +159,6 @@ def add():
                     has_error =True
                 
         item_description= input.get("item_description")
-
         item_quantity =input.get("item_quantity")
         if not item_quantity or int(item_quantity) <1:
                     flash("Item quantity is required and should be positive.","danger")
@@ -185,7 +177,7 @@ def add():
                         has_error = True
 
         comments =input.get("comments")
-        
+
        
         if not has_error:
             try:
@@ -204,10 +196,11 @@ def add():
                         'comments': comments
                     }
                 )# <-- TODO add-11 add query and add arguments
+
                 #zahooruddin zohaib moahmmed -zm254-18/11/23        
 #                print("Query:", result.query)
  #               print("Arguments:", result.arguments)
-                
+
                 if result.status:
                     print("donation record created")
                     flash("Created Donation Record", "success")
@@ -220,6 +213,7 @@ def add():
 @donations.route("/edit", methods=["GET", "POST"])
 def edit():
     row = {}
+
     #zahooruddin zohaib moahmmed -zm254-18/11/23
     # TODO edit-1 request args id is required (flash proper error message)
     input = request.form
@@ -242,6 +236,7 @@ def edit():
             # TODO add-10 donation_date is required and must be within the past 30 days
             # TODO add-11 comments are optional
             #Zahooruddin zohaib moahmmed-zm254-11/20/23
+            
             has_error = False # use this to control whether or not an insert occurs
             
             donor_firstname= input.get("donor_firstname")
@@ -253,7 +248,6 @@ def edit():
             if not donor_lastname:
                         flash("Donor Last Name is required.","danger")
                         has_error =True
-
             donor_email = input.get("donor_email")
             if not  donor_email and not re.match(r"[^@]+@[^@]+\.[^@]+", donor_email):
                         flash("Invalid email format. Please enter a valid email address", "danger")
@@ -267,6 +261,7 @@ def edit():
             if not item_name:
                         flash("Item name is required.","danger")
                         has_error =True
+
             #zahooruddin zohaib moahmmed -zm254-18/11/23        
             item_description= input.get("item_description")
 
@@ -288,6 +283,7 @@ def edit():
                             has_error = True
 
             comments =input.get("comments")
+                
             if not has_error:
                 try:
                     # TODO edit-12 fill in proper update query
@@ -350,7 +346,6 @@ def edit():
             flash(f"Unexpected error while trying to fetch updated data: {e}", "danger")
     
     return render_template("manage_donation.html", donation=row)
-
 @donations.route("/delete", methods=["GET"])
 def delete():
     # TODO delete-1 if id is missing, flash necessary message and redirect to search
@@ -375,4 +370,5 @@ def delete():
             print(e)
             flash(f"Unexpected error while trying to delete the donation record: {e}", "danger")
         del args["id"]
+        
     return redirect(url_for("donations.search", **request.args))
