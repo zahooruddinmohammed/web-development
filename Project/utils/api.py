@@ -159,7 +159,8 @@ class API:
 
 if __name__ == "__main__":
     # example using https://rapidapi.com/alphavantage/api/alpha-vantage
-    querystring = {"function": "GLOBAL_QUOTE", "symbol": "MSFT", "datatype": "json"}
+    #querystring = {"function": "GLOBAL_QUOTE", "symbol": "MSFT", "datatype": "json"}
+    querystring = {"plrN":"Sachin"}
     
-    resp = API.get("/stats/v1/player/trending", querystring)
+    resp = API.get("/stats/v1/player/search", querystring)
     print(resp)
