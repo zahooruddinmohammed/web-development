@@ -26,6 +26,7 @@ class PlayerForm(FlaskForm):
         validators.Length(min=1, max=255, message='Face Image ID must be between 1 and 255 characters'),
         validators.Regexp('^[0-9]+$', message='Face Image ID can only contain numbers ')
     ])
+    source = StringField('Source', [validators.Length(min=1, max=255)])
 
    
     

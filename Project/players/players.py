@@ -1,7 +1,6 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for
 from sql.db import DB  # Import your DB class
-#from stocks.forms import StockForm, StockSearchForm  # Import your StockForm class
-#from utils.Cricbuzz import Cricbuzz
+from utils.api import API
 from players.forms import PlayerForm, PlayerSearchForm
 from roles.permissions import admin_permission
 
@@ -11,13 +10,12 @@ players = Blueprint('players', __name__, url_prefix='/players', template_folder=
 @players.route("/fetch", methods=["GET", "POST"])
 @admin_permission.require(http_exception=403)
 def fetch():
-    form = PlayerSearchForm()
+    form = PlayerSearchForm()  # Assuming you have a PlayerSearchForm for player search
     if form.validate_on_submit():
         try:
             from utils.Cricbuzz import Cricbuzz
             from utils.lazy import DictToObject
 
-            # Get the list of player records
             player_data_list = Cricbuzz.get_player_stats(form.plrN.data)
             
             if player_data_list:
@@ -26,23 +24,30 @@ def fetch():
                     player_result = DictToObject(player_data)
                     
                     # Insert or update the player record in the database
-                    player_result = DB.insertOne(
-                        """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id)
-                            VALUES (%s, %s, %s, %s)
+                    result = DB.insertOne(
+                        """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id, source)
+                            VALUES (%s, %s, %s, %s, 'API')
                             ON DUPLICATE KEY UPDATE
                             name = VALUES(name),
                             team_name = VALUES(team_name),
-                            face_image_id = VALUES(face_image_id)""",
+                            face_image_id = VALUES(face_image_id),
+                            source = VALUES(source)""",
                         player_result.id, player_result.name, player_result.teamName, player_result.faceImageId
                     )
-                
-                if player_result.status:
-                    flash(f"Loaded player records for {form.plrN.data}", "success")
+
+                    if result.status:
+                        flash(f"Loaded player record for {player_result.name} from API", "success")
+                    else:
+                        flash(f"Error loading player record from API: {result.error}", "danger")
+            else:
+                flash(f"No player found for {form.plrN.data}", "warning")
+
         except Exception as e:
-            flash(f"Error loading player records: {e}", "danger")
-    
-            
-    return render_template("player_Search.html", form=form)
+            flash(f"Error loading player record: {e}", "danger")
+
+    return render_template("player_search.html", form=form)
+
+
 
 @players.route("/add", methods=["GET", "POST"])
 @admin_permission.require(http_exception=403)
@@ -54,18 +59,19 @@ def add():
             #zahooruddin zohaib mohammed -zm254- 12/01/23
             # Insert or update the player record in the database
             result = DB.insertOne(
-                """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id)
-                    VALUES (%s, %s, %s, %s)
+                """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id, source)
+                    VALUES (%s, %s, %s, %s, 'custom')
                     ON DUPLICATE KEY UPDATE
                     player_id = VALUES(player_id),
-                    name = VALUES(name),
+                    name = VALUES(name),   
                     team_name = VALUES(team_name),
-                    face_image_id = VALUES(face_image_id)""",
+                    face_image_id = VALUES(face_image_id),
+                    source = VALUES(source)""",
                 form.player_id.data, form.name.data, form.team_name.data, form.face_image_id.data
             )
             
             if result.status:
-                flash(f"Created/updated player record for {form.name.data}", "success")
+                flash(f"Created/updated player record for {form.name.data}(Custom Data)", "success")
         except Exception as e:
             flash(f"Error creating/updating player record: {e}", "danger")
 
@@ -74,38 +80,42 @@ def add():
 @players.route("/edit", methods=["GET", "POST"])
 @admin_permission.require(http_exception=403)
 def edit():
-    form = PlayerForm()
     id = request.args.get("id")
     
     if id is None:
         flash("Missing Player ID", "danger")
         return redirect(url_for("players.list"))
     
-    if form.validate_on_submit() and id:
-        try:
-            # Update the existing player record in the database
-            result = DB.insertOne(
-                "UPDATE IS601_Players SET name = %s, team_name = %s, face_image_id = %s WHERE id = %s",
-                form.name.data, form.team_name.data, form.face_image_id.data, id
-            )
-            
-            if result.status:
-                flash(f"Updated player record for {form.name.data}", "success")
-            else:
-                flash(f"Error updating player record: {result.error}", "danger")
-        except Exception as e:
-            flash(f"Error updating player record: {e}", "danger")
-    
     try:
         result = DB.selectOne(
-            "SELECT player_id, name, team_name, face_image_id FROM IS601_Players WHERE id = %s",
+            "SELECT player_id, name, team_name, face_image_id, source FROM IS601_Players WHERE id = %s",
             id
         )
         
-        if result.status and result.row:
-            form = PlayerForm(data=result.row)
+        if not result.status or not result.row:
+            flash("Player record not found", "danger")
+            return redirect(url_for("players.list"))
+        
+        form = PlayerForm(data=result.row)
+
+        if form.validate_on_submit():
+            try:
+                # Update the existing player record in the database
+                result = DB.insertOne(
+                    "UPDATE IS601_Players SET name = %s, team_name = %s, face_image_id = %s, source = %s WHERE id = %s",
+                    form.name.data, form.team_name.data, form.face_image_id.data, form.source.data, id
+                )
+                
+                if result.status:
+                    flash(f"Updated player record for {form.name.data}", "success")
+                    return redirect(url_for("players.list"))
+                else:
+                    flash(f"Error updating player record: {result.error}", "danger")
+            except Exception as e:
+                flash(f"Error updating player record: {e}", "danger")
     except Exception as e:
         flash("Error fetching player record", "danger")
+        return redirect(url_for("players.list"))
     
     return render_template("player_form.html", form=form, type="Edit")
 
@@ -113,9 +123,9 @@ def edit():
 @admin_permission.require(http_exception=403)
 def list():
     rows = []
-    query = """SELECT id, player_id, name, team_name, face_image_id FROM IS601_Players WHERE 1=1"""
+    query = """SELECT id, player_id, name, team_name, face_image_id, source FROM IS601_Players WHERE 1=1"""
     args = {}
-    allowed_columns = ["player_id", "name", "team_name", "face_image_id", "created", "modified"]
+    allowed_columns = ["player_id", "name", "team_name", "face_image_id","source", "created", "modified"]
     #zahooruddin zohaib mohammed- zm254 - 12/01/23
     # Filter logic from the search route
     player_id = request.args.get("player_id")
@@ -194,17 +204,18 @@ def delete():
     
     return redirect(url_for("players.list", **args))
 
+
 @players.route("/view", methods=["GET"])
 def view():
     id = request.args.get("id")
-    #zahooruddin zohaib mohammed -zm254-12/01/23
+    
     if id is None:
         flash("Missing ID", "danger")
         return redirect(url_for("players.list"))
     
     try:
         result = DB.selectOne(
-            "SELECT id, player_id, name, team_name, face_image_id FROM IS601_Players WHERE id = %s",
+            "SELECT id, player_id, name, team_name, face_image_id, source FROM IS601_Players WHERE id = %s",
             id
         )
         

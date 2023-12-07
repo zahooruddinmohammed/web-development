@@ -23,7 +23,11 @@
                 <input type="text" name="team" class="form-control" value="{{ request.args.get('team') or '' }}">
             </div>
             <div class="col-md-3">
-                <label for="Limit" class="form-label">Limit:</label>
+                <label for="source" class="form-label">Source:</label>
+                <input type="text" name="source" class="form-control" value="{{ request.args.get('source') or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="limit" class="form-label">Limit:</label>
                 <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" value="{{request.args.get('limit') or 10}}">
             </div>
             <div class="col-md-3">
@@ -34,6 +38,31 @@
     </form>
     
     <!-- Display the player records in a table -->
-    {{ render_table(rows, "Players", [], view, edit, delete) }}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Player ID</th>
+                <th>Name</th>
+                <th>Team</th>
+                <th>Source</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row.player_id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.team_name }}</td>
+                    <td>{{ row.source }}</td>
+                    <td>
+                        <a href="{{ url_for(view, id=row.id) }}" class="btn btn-primary">View</a>
+                        <a href="{{ url_for(edit, id=row.id) }}" class="btn btn-warning">Edit</a>
+                        <a href="{{ url_for(delete, id=row.id) }}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
