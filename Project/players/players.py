@@ -15,18 +15,14 @@ def fetch():
         try:
             from utils.Cricbuzz import Cricbuzz
             from utils.lazy import DictToObject
-
             player_data_list = Cricbuzz.get_player_stats(form.plrN.data)
-            
             if player_data_list:
                 for player_data in player_data_list:
-                    # Convert each player record to a DictToObject
                     player_result = DictToObject(player_data)
-                    
-                    # Insert or update the player record in the database
+                    #zahooruddin zohaib Mohammed-zm254-12/06/23
                     result = DB.insertOne(
                         """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id, source)
-                            VALUES (%s, %s, %s, %s, 'API')
+                            VALUES (%s, %s, %s, %s, 'API')D
                             ON DUPLICATE KEY UPDATE
                             name = VALUES(name),
                             team_name = VALUES(team_name),
@@ -56,8 +52,7 @@ def add():
 
     if form.validate_on_submit():
         try:
-            #zahooruddin zohaib mohammed -zm254- 12/01/23
-            # Insert or update the player record in the database
+            #zahooruddin zohaib mohammed - zm254-12/06/23
             result = DB.insertOne(
                 """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id, source)
                     VALUES (%s, %s, %s, %s, 'custom')
@@ -71,9 +66,15 @@ def add():
             )
             
             if result.status:
-                flash(f"Created/updated player record for {form.name.data}(Custom Data)", "success")
+                flash(f"Created/updated player record for {form.name.data} (Custom Data)", "success")
         except Exception as e:
             flash(f"Error creating/updating player record: {e}", "danger")
+
+
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Validation error in field '{field}': {error}", "danger")
 
     return render_template("player_form.html", form=form, type="Create")
 
@@ -115,7 +116,7 @@ def edit():
                 flash(f"Error updating player record: {e}", "danger")
     except Exception as e:
         flash("Error fetching player record", "danger")
-        return redirect(url_for("players.list"))
+        
     
     return render_template("player_form.html", form=form, type="Edit")
 
@@ -177,7 +178,8 @@ def list():
     except Exception as e:
         print(e)
         flash(f"Unexpected error while trying to fetch player records: {e}", "danger")
-
+    if not rows:
+        flash("No results found", "info")
     return render_template("player_list.html", rows=rows, allowed_columns=allowed_columns)
 
 @players.route("/delete", methods=["GET"])
