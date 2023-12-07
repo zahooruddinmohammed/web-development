@@ -39,7 +39,8 @@ def create_app(config_filename=''):
         app.register_blueprint(auth)
         from roles.roles import roles
         app.register_blueprint(roles)
-
+        from players.players import players
+        app.register_blueprint(players)
         # load the extension
         principals = Principal(app) # must be defined/initialized for identity to work (flask_principal)
         @login_manager.user_loader

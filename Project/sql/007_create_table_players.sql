@@ -1,5 +1,5 @@
 CREATE TABLE
-    IS601_players (
+    IS601_Players (
         id INT AUTO_INCREMENT PRIMARY KEY,
         
         player_id INT NOT NULL,
