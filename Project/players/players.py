@@ -48,17 +48,27 @@ def fetch():
 @admin_permission.require(http_exception=403)
 def add():
     form = PlayerForm()
+
     if form.validate_on_submit():
         try:
-            # Create a new stock record in the database
+            #zahooruddin zohaib mohammed -zm254- 12/01/23
+            # Insert or update the player record in the database
             result = DB.insertOne(
-                "INSERT INTO IS601_Players (player_id, name, team_name, face_image_id) VALUES (%s, %s, %s, %s)",
+                """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id)
+                    VALUES (%s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    player_id = VALUES(player_id),
+                    name = VALUES(name),
+                    team_name = VALUES(team_name),
+                    face_image_id = VALUES(face_image_id)""",
                 form.player_id.data, form.name.data, form.team_name.data, form.face_image_id.data
             )
+            
             if result.status:
-                flash(f"Created player record for {form.name.data}", "success")
+                flash(f"Created/updated player record for {form.name.data}", "success")
         except Exception as e:
-            flash(f"Error creating player record: {e}", "danger")
+            flash(f"Error creating/updating player record: {e}", "danger")
+
     return render_template("player_form.html", form=form, type="Create")
 
 @players.route("/edit", methods=["GET", "POST"])
@@ -98,6 +108,7 @@ def edit():
         flash("Error fetching player record", "danger")
     
     return render_template("player_form.html", form=form, type="Edit")
+
 @players.route("/list", methods=["GET"])
 @admin_permission.require(http_exception=403)
 def list():
@@ -105,7 +116,7 @@ def list():
     query = """SELECT id, player_id, name, team_name, face_image_id FROM IS601_Players WHERE 1=1"""
     args = {}
     allowed_columns = ["player_id", "name", "team_name", "face_image_id", "created", "modified"]
-
+    #zahooruddin zohaib mohammed- zm254 - 12/01/23
     # Filter logic from the search route
     player_id = request.args.get("player_id")
     name = request.args.get("name")
@@ -131,7 +142,7 @@ def list():
         if column == 'modified':
             column = 'modified'
         query += f" ORDER BY {column} {order}"
-
+    #zahooruddin zohaib mohammed-zm254- 12/01/23
     if limit:
         try:
             limit = int(limit)
@@ -186,7 +197,7 @@ def delete():
 @players.route("/view", methods=["GET"])
 def view():
     id = request.args.get("id")
-    
+    #zahooruddin zohaib mohammed -zm254-12/01/23
     if id is None:
         flash("Missing ID", "danger")
         return redirect(url_for("players.list"))

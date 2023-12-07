@@ -23,6 +23,10 @@
                 <input type="text" name="team" class="form-control" value="{{ request.args.get('team') or '' }}">
             </div>
             <div class="col-md-3">
+                <label for="Limit" class="form-label">Limit:</label>
+                <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" value="{{request.args.get('limit') or 10}}">
+            </div>
+            <div class="col-md-3">
                 <button type="submit" class="btn btn-primary mt-4">Filter</button>
                 <a href="?" class="btn btn-secondary mt-4">Reset</a>
             </div>
