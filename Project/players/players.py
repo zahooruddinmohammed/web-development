@@ -45,7 +45,7 @@ def fetch():
         except Exception as e:
             flash(f"Error loading player record: {e}", "danger")
 
-    return render_template("player_search.html", form=form)
+    return render_template("player_Search.html", form=form)
 
 
 
