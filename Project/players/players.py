@@ -83,8 +83,8 @@ def add():
 def edit():
     id = request.args.get("id")
     
-    if id is None:
-        flash("Missing Player ID", "danger")
+    if id is None or not id.isdigit():
+        flash("Invalid Player ID. Please provide a valid numeric ID.", "danger")
         return redirect(url_for("players.list"))
     
     try:
@@ -101,6 +101,11 @@ def edit():
 
         if form.validate_on_submit():
             try:
+                # Additional Data Validation
+                if not form.name.data.isalpha():
+                    flash("Invalid player name. Please enter a valid name with alphabetic characters only.", "danger")
+                    return render_template("player_form.html", form=form, type="Edit")
+
                 # Update the existing player record in the database
                 result = DB.insertOne(
                     "UPDATE IS601_Players SET name = %s, team_name = %s, face_image_id = %s, source = %s WHERE id = %s",
@@ -116,9 +121,9 @@ def edit():
                 flash(f"Error updating player record: {e}", "danger")
     except Exception as e:
         flash("Error fetching player record", "danger")
-        
     
     return render_template("player_form.html", form=form, type="Edit")
+
 
 @players.route("/list", methods=["GET"])
 @admin_permission.require(http_exception=403)

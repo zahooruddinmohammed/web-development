@@ -8,11 +8,11 @@
         {% for field in form %}
             {% if field.name != 'csrf_token' %}
                 <div class="form-group">
-                    <label for="{{ field.id }}">{{ field.label }}</label>
+                    <label for="{{ field.id }}" class="font-weight-bold">{{ field.label | safe }}</label>
                     {% if field.type == 'TextAreaField' %}
-                        <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}">{{ field.data or "" }}</textarea>
+                        <textarea class="form-control {% if field.errors %} is-invalid {% endif %}" id="{{ field.id }}" name="{{ field.name }}" placeholder="">{{ field.data or "" }}</textarea>
                     {% else %}
-                        <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" type="{{ field.type }}" value="{{ field.data or '' }}">
+                        <input class="form-control {% if field.errors %}is-invalid{% endif %}" id="{{ field.id }}" name="{{ field.name }}" type="{{ field.type }}" value="{{ field.data or '' }}" placeholder="">
                     {% endif %}
                     {% if field.errors %}
                         <div class="invalid-feedback">
