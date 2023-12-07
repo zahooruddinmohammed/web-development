@@ -102,14 +102,62 @@ def edit():
 @admin_permission.require(http_exception=403)
 def list():
     rows = []
+    query = """SELECT id, player_id, name, team_name, face_image_id FROM IS601_Players WHERE 1=1"""
+    args = {}
+    allowed_columns = ["player_id", "name", "team_name", "face_image_id", "created", "modified"]
+
+    # Filter logic from the search route
+    player_id = request.args.get("player_id")
+    name = request.args.get("name")
+    team_name = request.args.get("team_name")
+    column = request.args.get("column", )
+    order = request.args.get("order", )
+    limit = request.args.get("limit", )
+    if player_id:
+        query += " AND player_id LIKE %(player_id)s"
+        args["player_id"] = f"%{player_id}%"
+
+    if name:
+        query += " AND name LIKE %(name)s"
+        args["name"] = f"%{name}%"
+
+    if team_name:
+        query += " AND team_name LIKE %(team_name)s"
+        args["team_name"] = f"%{team_name}%"
+
+    if column and order and column in allowed_columns and order in ["asc", "desc"]:
+        if column == 'created':
+            column = 'created'
+        if column == 'modified':
+            column = 'modified'
+        query += f" ORDER BY {column} {order}"
+
+    if limit:
+        try:
+            limit = int(limit)
+            if 1 < limit <= 100:
+                limit = limit
+            else:
+                limit = 10
+                flash("Limit must be between 2 and 100", "error")
+        except ValueError:
+            limit = 10
+            flash("Limit must be a valid number", "error")
+    if not limit:
+        limit = 10
+
+    query += " LIMIT %(limit)s"
+    args["limit"] = limit
+
     try:
-        result = DB.selectAll("SELECT id,player_id, name, team_name, face_image_id FROM IS601_Players LIMIT 100")
-        if result.status and result.rows:
+        result = DB.selectAll(query, args)
+        if result.status:
             rows = result.rows
     except Exception as e:
         print(e)
-        flash("Error getting player records", "danger")
-    return render_template("player_list.html", rows=rows)
+        flash(f"Unexpected error while trying to fetch player records: {e}", "danger")
+
+    return render_template("player_list.html", rows=rows, allowed_columns=allowed_columns)
 
 @players.route("/delete", methods=["GET"])
 @admin_permission.require(http_exception=403)
