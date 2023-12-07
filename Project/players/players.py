@@ -42,7 +42,7 @@ def fetch():
             flash(f"Error loading player records: {e}", "danger")
     
             
-    return render_template("player_search.html", form=form)
+    return render_template("player_Search.html", form=form)
 
 @players.route("/add", methods=["GET", "POST"])
 @admin_permission.require(http_exception=403)

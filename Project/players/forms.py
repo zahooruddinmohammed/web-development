@@ -5,9 +5,7 @@ class PlayerSearchForm(FlaskForm):
     #symbol = StringField('Symbol', [validators.Length(min=1, max=10)])
     plrN = StringField('Player Name', [validators.Length(min=1, max=255)])
    
-def no_numbers_in_team_name(form, field):
-    if any(char.isdigit() for char in field.data):
-        raise validators.ValidationError('Team name cannot contain numbers.')
+
 
 class PlayerForm(FlaskForm):
     player_id = StringField('Player ID', [
