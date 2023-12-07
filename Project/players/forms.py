@@ -12,7 +12,7 @@ def no_numbers_in_team_name(form, field):
 class PlayerForm(FlaskForm):
     player_id = StringField('Player ID', [
         validators.Length(min=1, max=255, message='Player ID must be between 1 and 255 characters'),
-        validators.Regexp('^[A-Za-z0-9_-]+$', message='Player ID can only contain letters, numbers, underscores, and hyphens')
+        validators.Regexp('^[0-9]+$', message='Player ID can only contain numbers')
     ])
     
     name = StringField('Player Name', [
@@ -26,7 +26,7 @@ class PlayerForm(FlaskForm):
     
     face_image_id = StringField('Face Image ID', [
         validators.Length(min=1, max=255, message='Face Image ID must be between 1 and 255 characters'),
-        validators.Regexp('^[A-Za-z0-9_-]+$', message='Face Image ID can only contain letters, numbers, underscores, and hyphens')
+        validators.Regexp('^[0-9]+$', message='Face Image ID can only contain numbers ')
     ])
 
    
