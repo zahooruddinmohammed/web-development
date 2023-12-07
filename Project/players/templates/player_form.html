@@ -3,6 +3,7 @@
 {% block content %}
 {% from "_formhelpers.html" import render_field %}
 <div class="container-fluid">
+    {#ZAHOORUDDIN ZOHIAB MOHAMMED-zm254- 12/01/23#}
     <div class="h3">{{ type }} Player Data</div>
     <form method="POST">
         {% for field in form %}
@@ -12,7 +13,8 @@
                     {% if field.type == 'TextAreaField' %}
                         <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}">{{ field.data or "" }}</textarea>
                     {% else %}
-                        <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" type="{{ field.type }}" value="{{ field.data or '' }}">
+                        <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" 
+                        type="{{ field.type }}" value="{{ field.data or '' }}">
                     {% endif %}
                     {% if field.errors %}
                         <div class="invalid-feedback">
@@ -23,6 +25,7 @@
             {% endif %}
         {% endfor %}
         {{ form.hidden_tag() }}
+        
         <button type="submit" class="btn btn-primary mt-3">Save</button>
     </form>
 </div>
