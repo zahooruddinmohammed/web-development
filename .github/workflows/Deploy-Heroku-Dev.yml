@@ -9,7 +9,7 @@ on:
       - dev
       - DeploymentSetup
 
-      - Flask-Sample-Pytest
+      - Milestone2
       
     
 
@@ -22,7 +22,7 @@ jobs:
       DB_URL: ${{secrets.DB_URL}}
       PORT: 8080
       # change to the project directory you're deploying
-      WORKING_DIRECTORY: flask_sample
+      WORKING_DIRECTORY: Project
     defaults:
       run:
           working-directory: ${{env.WORKING_DIRECTORY}}
