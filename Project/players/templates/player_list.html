@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block title %}Players{% endblock %}
+
+<!-- content -->
+{% block content %}
+{% from "_table_helper.html" import render_table %}
+{% set view = "players.view" %}
+{% set edit = "players.edit" %}
+{% set delete = "players.delete" %}
+<div class="container-fluid">
+    <form action="{{ url_for('players.list') }}" method="GET" class="mb-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="player_id" class="form-label">Player ID:</label>
+                <input type="number" name="player_id" class="form-control" value="{{ request.args.get('player_id') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" name="name" class="form-control" value="{{ request.args.get('name') or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="team" class="form-label">Team:</label>
+                <input type="text" name="team" class="form-control" value="{{ request.args.get('team') or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="source" class="form-label">Source:</label>
+                <input type="text" name="source" class="form-control" value="{{ request.args.get('source') or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="limit" class="form-label">Limit:</label>
+                <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" value="{{request.args.get('limit') or 10}}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary mt-4">Filter</button>
+                <a href="?" class="btn btn-secondary mt-4">Reset</a>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Display the player records in a table -->
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Player ID</th>
+                <th>Name</th>
+                <th>Team</th>
+                <th>Source</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row.player_id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.team_name }}</td>
+                    <td>{{ row.source }}</td>
+                    <td>
+                        <a href="{{ url_for(view, id=row.id) }}" class="btn btn-primary">View</a>
+                        <a href="{{ url_for(edit, id=row.id) }}" class="btn btn-warning">Edit</a>
+                        <a href="{{ url_for(delete, id=row.id) }}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
