@@ -22,7 +22,7 @@ def fetch():
                     #zahooruddin zohaib Mohammed-zm254-12/06/23
                     result = DB.insertOne(
                         """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id, source)
-                            VALUES (%s, %s, %s, %s, 'API')D
+                            VALUES (%s, %s, %s, %s, 'API')
                             ON DUPLICATE KEY UPDATE
                             name = VALUES(name),
                             team_name = VALUES(team_name),
