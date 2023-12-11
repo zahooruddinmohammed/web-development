@@ -3,6 +3,7 @@ from wtforms import IntegerField, SelectField, StringField, DecimalField, TextAr
 from wtforms.validators import URL
 
 class PlayerFetchForm(FlaskForm):
+   
     plrN = StringField('Player Name', [validators.Length(min=1, max=20)])
     
 
@@ -51,5 +52,5 @@ class AssocForm(FlaskForm):
         # This overrides the value from the base form.
         csrf = False
     username = StringField("Username")
-    card = StringField("Card Name")
+    player = StringField("Player Name")
     submit = SubmitField("Filter")

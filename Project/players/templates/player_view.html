@@ -13,7 +13,7 @@
                 <div class="col-auto">
                     <a href="{{url_for('players.track', id=request.args.get('id'))}}"
                         class="btn btn-secondary">
-                        {% if data.is_assoc %}
+                        {% if player.is_assoc %}
                         <i class="bi bi-balloon-heart-fill"></i></a>
                     {% else %}
                     <i class="bi bi-balloon-heart"></i></a>
