@@ -3,7 +3,7 @@
 
 {% block content %}
 {% from "_table_helper.html" import render_table %}
-{% from "_formhelpers.html" import render_field %}
+
 {% set view = "players.view" %}
 {% if current_user.is_authenticated %}
 {% set assoc = "players.track" %}
@@ -26,7 +26,7 @@
     onsubmit="return confirm('Are you sure?')">
     <input type="hidden" name="id"
         value="{{request.args.get('id', current_user.id)}}" />
-    <input type="submit" class="btn btn-danger" value="Clear Watchlist" />
+    <input type="submit" class="btn btn-danger" value="Clear favlist" />
 </form>
 <div class="row">
     <div class="col">

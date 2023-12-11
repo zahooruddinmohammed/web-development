@@ -28,6 +28,20 @@
                     <a class="nav-link"
                         href="{{url_for('auth.profile')}}">Profile</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('players.list')}}">Player
+                        List</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                        href="{{url_for('players.watchlist')}}"> Player
+                        WatchList</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                        href="{{url_for('players.watchlist')}}"> Player
+                        Unwatched</a>
+                </li>
                 <!-- samples nav -->
                 <!-- {% set samples = [
                 ("sample.add", "Add"),
