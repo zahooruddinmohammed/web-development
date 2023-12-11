@@ -2,8 +2,39 @@
 {% block title %}View Players{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="h3">View Player</div>
+{% from "_formhelpers.html" import render_field %}
+<div class="container-fluid text-center">
+    <div class="h3">List</div>
+
+    <div class="card mx-auto" style="width: 18rem;">
+        <div class="card-header">
+            <div class="row">
+                {% if current_user.is_authenticated %}
+                <div class="col-auto">
+                    <a href="{{url_for('players.track', id=request.args.get('id'))}}"
+                        class="btn btn-secondary">
+                        {% if data.is_assoc %}
+                        <i class="bi bi-balloon-heart-fill"></i></a>
+                    {% else %}
+                    <i class="bi bi-balloon-heart"></i></a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.has_role("Admin") %}
+                <div class="col-auto">
+                    <a href="{{url_for('players.edit', id=request.args.get('id'))}}"
+                        class="btn btn-secondary"><i
+                            class="bi bi-pencil"></i></a>
+                </div>
+                <div class="col-auto">
+                    <a href="{{url_for('players.delete', id=request.args.get('id'))}}"
+                        class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+<div class="card-body">
     <dl class="row">
         <dt class="col-sm-3">Player ID</dt>
         <dd class="col-sm-9">{{ player.player_id }}</dd>
@@ -16,11 +47,19 @@
   
         <dt class="col-sm-3">Face Image ID</dt>
         <dd class="col-sm-9">{{ player.face_image_id }}</dd>
-
     </dl>
-        <a href="{{ url_for('players.list') }}"
-                class="btn btn-secondary">Back</a>
-        </div>
+</div>
+<div class="card-footer text-muted">
+    <a href="{{ url_for('players.list') }}" class="btn btn-primary">Back</a>
+</div>
+
+
     </div>
+
 </div>
 {% endblock %}
+
+
+
+
+

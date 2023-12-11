@@ -1,16 +1,28 @@
-from flask import Blueprint, flash, render_template, request, redirect, url_for
+from flask import Blueprint, flash, render_template, request, redirect, url_for,current_app 
+from flask_login import current_user
 from sql.db import DB  # Import your DB class
 from utils.api import API
-from players.forms import PlayerForm, PlayerSearchForm
+from players.forms import PlayerForm, PlayerSearchForm , PlayerFetchForm,AdminPlayerSearchForm
 from roles.permissions import admin_permission
 
 #stocks = Blueprint('stocks', __name__, url_prefix='/stocks', template_folder='templates')
 players = Blueprint('players', __name__, url_prefix='/players', template_folder='templates')
 
+def get_total(partial_query, args={}):
+    total = 0
+    try:
+        result = DB.selectOne("SELECT count(1) as total FROM "+partial_query, args)
+        if result.status and result.row:
+            total = int(result.row["total"])
+    except Exception as e:
+        print(f"Error getting total {e}")
+        total = 0
+    return total
+
 @players.route("/fetch", methods=["GET", "POST"])
 @admin_permission.require(http_exception=403)
 def fetch():
-    form = PlayerSearchForm()  # Assuming you have a PlayerSearchForm for player search
+    form = PlayerFetchForm()  # Assuming you have a PlayerSearchForm for player search
     if form.validate_on_submit():
         try:
             from utils.Cricbuzz import Cricbuzz
@@ -19,8 +31,8 @@ def fetch():
             if player_data_list:
                 for player_data in player_data_list:
                     player_result = DictToObject(player_data)
-                    #zahooruddin zohaib Mohammed-zm254-12/06/23
-                    result = DB.insertOne(
+
+                result =  DB.insertOne(
                         """INSERT INTO IS601_Players (player_id, name, team_name, face_image_id, source)
                             VALUES (%s, %s, %s, %s, 'API')
                             ON DUPLICATE KEY UPDATE
@@ -30,10 +42,11 @@ def fetch():
                             source = VALUES(source)""",
                         player_result.id, player_result.name, player_result.teamName, player_result.faceImageId
                     )
+                
 
-                    if result.status:
+                if result.status:
                         flash(f"Loaded player record for {player_result.name} from API", "success")
-                    else:
+                else:
                         flash(f"Error loading player record from API: {result.error}", "danger")
             else:
                 flash(f"No player found for {form.plrN.data}", "warning")
@@ -128,64 +141,60 @@ def edit():
 @players.route("/list", methods=["GET"])
 @admin_permission.require(http_exception=403)
 def list():
-    rows = []
-    query = """SELECT id, player_id, name, team_name, face_image_id, source FROM IS601_Players WHERE 1=1"""
-    args = {}
-    allowed_columns = ["player_id", "name", "team_name", "face_image_id","source", "created", "modified"]
+    form = PlayerSearchForm(request.args)
+    allowed_columns = ["player_id","name", "team_name", "face_image_id","source","created", "modified"]
+    form.sort.choices = [(k, k) for k in allowed_columns]
+    
+    query = """SELECT id, player_id, name, team_name, face_image_id, source,
+    IFNULL((SELECT count(1) FROM IS601_fvrt WHERE user_id =%(user_id)s and player_fvrt_id= IS601_Players.id),0) as 'is_assoc'
+    FROM IS601_Players
+    WHERE 1=1"""
+    args = {"user_id":current_user.id}
+    where =""
     #zahooruddin zohaib mohammed- zm254 - 12/01/23
     # Filter logic from the search route
-    player_id = request.args.get("player_id")
-    name = request.args.get("name")
-    team_name = request.args.get("team_name")
-    column = request.args.get("column", )
-    order = request.args.get("order", )
-    limit = request.args.get("limit", )
-    if player_id:
-        query += " AND player_id LIKE %(player_id)s"
-        args["player_id"] = f"%{player_id}%"
 
-    if name:
-        query += " AND name LIKE %(name)s"
-        args["name"] = f"%{name}%"
-
-    if team_name:
-        query += " AND team_name LIKE %(team_name)s"
-        args["team_name"] = f"%{team_name}%"
-
-    if column and order and column in allowed_columns and order in ["asc", "desc"]:
-        if column == 'created':
-            column = 'created'
-        if column == 'modified':
-            column = 'modified'
-        query += f" ORDER BY {column} {order}"
+    if form.player_id.data:
+        args["player_id"] =f"%{form.player_id.data}"
+        where += " AND player_id LIKE %(player_id)s"
+    if form.player_id.data:
+        args["name"] =f"%{form.name.data}"
+        where += " AND name LIKE %(name)s"
+    if form.team_name.data:
+        args["team_name"] =f"%{form.team_name.data}"
+        where += " AND team_name LIKE %(team_name)s"
+    if form.face_image_id.data:
+        args["face_image_id"] =f"%{form.face_image_id.data}"
+        where += " AND face_image_id LIKE %(face_image_id)s"
+    
+    if form.sort.data in allowed_columns and form.order.data in ["asc", "desc"]:
+        where += f" ORDER BY {form.sort.data} {form.order.data}"
     #zahooruddin zohaib mohammed-zm254- 12/01/23
-    if limit:
-        try:
-            limit = int(limit)
-            if 1 < limit <= 100:
-                limit = limit
-            else:
-                limit = 10
-                flash("Limit must be between 2 and 100", "error")
-        except ValueError:
-            limit = 10
-            flash("Limit must be a valid number", "error")
-    if not limit:
-        limit = 10
+    
+    limit = 10
+    if form.limit.data:
+        limit = form.limit.data
+        if limit < 1:
+            limit = 1
+        if limit > 100:
+            limit = 100
+        args["limit"] = limit
+        where += " LIMIT %(limit)s"
 
-    query += " LIMIT %(limit)s"
-    args["limit"] = limit
+    
+    result = DB.selectAll(query+ where, args)
+    rows =[]
 
     try:
-        result = DB.selectAll(query, args)
-        if result.status:
+        if result.status and result.rows:
             rows = result.rows
     except Exception as e:
         print(e)
         flash(f"Unexpected error while trying to fetch player records: {e}", "danger")
     if not rows:
         flash("No results found", "info")
-    return render_template("player_list.html", rows=rows, allowed_columns=allowed_columns)
+    total_records = get_total(""" IS601_Players""")
+    return render_template("player_list.html", rows=rows, form=form, total_records=total_records)
 
 @players.route("/delete", methods=["GET"])
 @admin_permission.require(http_exception=403)
@@ -234,3 +243,163 @@ def view():
         flash(f"Player error {e}", "danger")
     
     return redirect(url_for("players.list"))
+
+@players.route("/track",methods=["GET"])
+def track():
+    id = request.args.get("id") 
+    args = {**request.args}
+    del args["id"]
+    if not id:
+        flash("Missing id parameter","danger")
+    else:
+        params = {"user_id": current_user.id, "player_fvrt_id": id}
+        try:
+            try:
+                result = DB.insertOne("INSERT INTO IS601_fvrt(player_fvrt_id,user_id) VALUES(%(players_fvrt_id)s,%(user_id)s)  ", params)
+                if result.status:
+                    flash("Added card to your watch list","success")
+            except Exception as e:
+                print(f"Should just be a dub exception and can be ignored {e}")
+                result = DB.delete("DELETE FROM IS601_fvrt WHERE player_fvrt_id =%(player_fvrt_id)s AND user_id=%(user_id)s",params)
+                if result.status:
+                    flash("Removed card form your fvrt list","success")
+        except Exception as e:
+            print(f"Error doing something with track/untrack{e}")
+            flash("An unhandled error occured please try again","danger") 
+    url = request.referrer
+    if url:
+        from urllib.parse import urlparse
+        url_stuff = urlparse(url)
+        watchlist_url = url_for("players.watchlist")
+        print(f"Parsed url {url_stuff} {watchlist_url}")
+        if url_stuff.path == url_for("players.watchlist"):
+            return redirect(url_for("players.watchlist", **args))
+        elif url_stuff.path == url_for("players.view"):
+            args["id"] = id
+            return redirect(url_for("players.view", **args))          
+    return redirect(url_for("players.list"),**args)
+
+@players.route("/watchlist",methods =["GET"])
+def watchlist():
+    id = request.args.get("id", current_user.id)
+    form = PlayerSearchForm(request.args)
+    allowed_columns = ["player_id","name", "team_name", "face_image_id","source","created", "modified"]
+    form.sort.choices = [(k, k) for k in allowed_columns]
+    query = """
+    SELECT t.id, player_id ,name, team_name, face_image_id, source, 
+    IFNULL((SELECT count(1) FROM IS601_fvrt WHERE user_id = %(user_id)s and player_fvrt_id = t.id), 0) as 'is_assoc' 
+    FROM IS601_Players t JOIN IS601_fvrt w ON t.id = w.player_fvrt_id
+    WHERE w.user_id = %(user_id)s
+    """
+    args = {"user_id":id}
+    where = ""
+
+    if form.player_id.data:
+        args["player_id"] =f"%{form.player_id.data}"
+        where += " AND player_id LIKE %(player_id)s"
+    if form.player_id.data:
+        args["name"] =f"%{form.name.data}"
+        where += " AND name LIKE %(name)s"
+    if form.team_name.data:
+        args["team_name"] =f"%{form.team_name.data}"
+        where += " AND team_name LIKE %(team_name)s"
+    if form.face_image_id.data:
+        args["face_image_id"] =f"%{form.face_image_id.data}"
+        where += " AND face_image_id LIKE %(face_image_id)s"
+
+    if form.sort.data in allowed_columns and form.order.data in ["asc", "desc"]:
+        where += f" ORDER BY {form.sort.data} {form.order.data}"
+
+    limit = 10
+    if form.limit.data:
+        limit = form.limit.data
+        if limit < 1:
+            limit = 1
+        if limit > 100:
+            limit = 100
+        args["limit"] = limit
+        where += " LIMIT %(limit)s"
+    
+    result = DB.selectAll(query + where, args)
+    rows = []
+
+    if result.status and result.rows:
+        rows = result.rows
+
+    total_records = get_total(""" IS601_players t JOIN IS601_fvrt w ON t.id = w.player_fvrt_id
+     WHERE w.user_id = %(user_id)s""", {"user_id": id})
+    return render_template("player_list.html", rows=rows, form=form, title="Watchlist", total_records=total_records)
+
+@players.route("/clear", methods=["GET"])
+def clear():
+    id = request.args.get("id")
+    args = {**request.args}
+    if "id" in args:
+        del args["id"]
+    if not id:
+        flash("Missing id", "danger")
+    else:
+        if id == current_user.id or current_user.has_role("Admin"):
+            try:
+                result = DB.delete("DELETE FROM IS601_fvrt WHERE user_id = %(user_id)s", {"user_id":id})
+                if result.status:
+                    flash("Cleared watchlist", "success")
+            except Exception as e:
+                print(f"Error clearing watchlist {e}")
+                flash("Error clearing watchlist","danger")
+        
+
+    return redirect(url_for("players.watchlist", **args))
+
+
+@players.route("/associations", methods=["GET"])
+@admin_permission.require(http_exception=403)
+def associations():
+    
+    form = AdminPlayerSearchForm(request.args)
+    allowed_columns = ["player_id","name", "team_name", "face_image_id","source","created", "modified"]
+    form.sort.choices = [(k, k) for k in allowed_columns]
+    query = """
+    SELECT u.id as user_id, username, c.id, player_id,name, team_name, face_image_id, source
+    FROM IS601_Players c JOIN IS601_WatchList w ON c.id = w.player_fvrt_id LEFT JOIN IS601_Users u on u.id = w.user_id
+    WHERE 1=1
+    """
+    args = {}
+    where = ""
+
+    if form.player_id.data:
+        args["player_id"] =f"%{form.player_id.data}"
+        where += " AND player_id LIKE %(player_id)s"
+    if form.player_id.data:
+        args["name"] =f"%{form.name.data}"
+        where += " AND name LIKE %(name)s"
+    if form.team_name.data:
+        args["team_name"] =f"%{form.team_name.data}"
+        where += " AND team_name LIKE %(team_name)s"
+    if form.face_image_id.data:
+        args["face_image_id"] =f"%{form.face_image_id.data}"
+        where += " AND face_image_id LIKE %(face_image_id)s"
+
+    if form.sort.data in allowed_columns and form.order.data in ["asc", "desc"]:
+        where += f" ORDER BY {form.sort.data} {form.order.data}"
+
+    limit = 10
+    if form.limit.data:
+        limit = form.limit.data
+        if limit < 1:
+            limit = 1
+        if limit > 100:
+            limit = 100
+        args["limit"] = limit
+        where += " LIMIT %(limit)s"
+    
+
+    result = DB.selectAll(query + where, args)
+    rows = []
+
+    if result.status and result.rows:
+        rows = result.rows
+
+    total_records = get_total(""" IS601_Players t JOIN IS601_fvrt w ON t.id = w.player_fvrt_id
+     WHERE w.user_id = %(user_id)s""", {"user_id": id})
+    return render_template("player_list.html", rows=rows, form=form, title="Associations", total_records=total_records)
