@@ -2,25 +2,55 @@
 {% block title %}View Players{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="h3">View Player</div>
-    <dl class="row">
-        <dt class="col-sm-3">Player ID</dt>
-        <dd class="col-sm-9">{{ player.player_id }}</dd>
-  
-        <dt class="col-sm-3">Name</dt>
-        <dd class="col-sm-9">{{ player.name }}</dd>
-  
-        <dt class="col-sm-3">Team Name</dt>
-        <dd class="col-sm-9">{{ player.team_name }}</dd>
-  
-        <dt class="col-sm-3">Face Image ID</dt>
-        <dd class="col-sm-9">{{ player.face_image_id }}</dd>
+{% from "_formhelpers.html" import render_field %}
+<div class="container-fluid text-center">
+    <div class="h3">Player</div>
 
-    </dl>
-        <a href="{{ url_for('players.list') }}"
-                class="btn btn-secondary">Back</a>
+    <div class="card mx-auto" style="width: 18rem;">
+        <div class="card-header">
+            <div class="row">
+                {% if current_user.is_authenticated %}
+                <div class="col-auto">
+                    <a href="{{url_for('players.track', id=request.args.get('id'))}}"
+                        class="btn btn-secondary">
+                        {% if player.is_assoc %}
+                        <i class="bi bi-balloon-heart-fill"></i></a>
+                    {% else %}
+                    <i class="bi bi-balloon-heart"></i></a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.has_role("Admin") %}
+                <div class="col-auto">
+                    <a href="{{url_for('players.edit', id=request.args.get('id'))}}"
+                        class="btn btn-secondary"><i
+                            class="bi bi-pencil"></i></a>
+                </div>
+                <div class="col-auto">
+                    <a href="{{url_for('players.delete', id=request.args.get('id'))}}"
+                        class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                </div>
+                {% endif %}
+            </div>
         </div>
+
+<div class="card-body">
+    <div class="card-title">{{ player.name }} (Code: {{ player.code }})</div>
+    <div class="card-text">Player_id: {{ player.player_id }}</div>
+    <div class="card-text">team_name: {{ player.team_name }}</div>
+    <div class="card-text">face_image_id: {{ player.face_image_id }}</div>
+</div>
+<div class="card-footer text-muted">
+    <a href="{{ url_for('players.list') }}" class="btn btn-primary">Back</a>
+</div>
+
+
     </div>
+
 </div>
 {% endblock %}
+
+
+
+
+

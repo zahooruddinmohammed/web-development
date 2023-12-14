@@ -9,6 +9,7 @@ on:
       - dev
       - flask_sample
       - Milestone2
+      - Milestone3
 
 # Your workflows jobs.
 jobs:
