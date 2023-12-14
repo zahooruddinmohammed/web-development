@@ -1,6 +1,6 @@
 <table><tr><td> <em>Assignment: </em> IS601 Milestone 3 API Project</td></tr>
 <tr><td> <em>Student: </em> Zahooruddin Zohaib Mohammed (zm254)</td></tr>
-<tr><td> <em>Generated: </em> 12/14/2023 4:44:21 PM</td></tr>
+<tr><td> <em>Generated: </em> 12/14/2023 6:22:32 PM</td></tr>
 <tr><td> <em>Grading Link: </em> <a rel="noreferrer noopener" href="https://learn.ethereallab.app/homework/IS601-007-F23/is601-milestone-3-api-project/grade/zm254" target="_blank">Grading</a></td></tr></table>
 <table><tr><td> <em>Instructions: </em> <ol><li>Checkout Milestone3 branch</li><li>Create a new markdown file called milestone3.md</li><li>git add/commit/push immediate</li><li>Fill in the below deliverables</li><li>At the end copy the markdown and paste it into milestone3.md</li><li>Add/commit/push the changes to Milestone3</li><li>PR Milestone3 to dev and verify</li><li>PR dev to prod and verify</li><li>Checkout dev locally and pull changes to get ready for Milestone 4</li><li>Submit the direct link to this new milestone3.md file from your GitHub prod branch to Canvas</li></ol><p>Note: Ensure all images appear properly on GitHub and everywhere else. Images are only accepted from dev or prod, not localhost. All website links must be from prod (you can assume/infer this by getting your dev URL and changing dev to prod).</p></td></tr></table>
 <table><tr><td> <em>Deliverable 1: </em> API Data Association </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707773-e6aef7cb-d5b2-4053-bbb1-b09fc609041e.png"></td></tr>
@@ -12,44 +12,72 @@
 <tr><td><table><tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T20.38.23image.png.webp?alt=media&token=5ae8a2c0-7303-49bb-a211-9a21b0452f55"/></td></tr>
 <tr><td> <em>Caption:</em> <p>code for track function.<br></p>
 </td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T22.50.41image.png.webp?alt=media&token=c271ddef-9bcf-48fb-b386-5afa8eaee7d6"/></td></tr>
+<tr><td> <em>Caption:</em> <p>list page<br></p>
+</td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T22.52.13image.png.webp?alt=media&token=72f89b30-19dd-48a8-a8e1-9651a107dcdf"/></td></tr>
+<tr><td> <em>Caption:</em> <p>view page<br></p>
+</td></tr>
 </table></td></tr>
 </table></td></tr>
-<table><tr><td> <em>Deliverable 2: </em> List Associated Entities to the logged in user </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707795-a9c94a71-7871-4572-bfae-ad636f8f8474.png"></td></tr>
+<table><tr><td> <em>Deliverable 2: </em> List Associated Entities to the logged in user </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707773-e6aef7cb-d5b2-4053-bbb1-b09fc609041e.png"></td></tr>
 <tr><td><table><tr><td> <em>Sub-Task 1: </em> Show the page where a user can list related/associated entities</td></tr>
-<tr><td><table><tr><td>Missing Image</td></tr>
-<tr><td> <em>Caption:</em> (missing)</td></tr>
+<tr><td><table><tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T22.55.35image.png.webp?alt=media&token=9780e68d-ea1e-4fc5-9c3d-b54fbc0a9ea3"/></td></tr>
+<tr><td> <em>Caption:</em> <p>Watchlist page Listing Associated Entities to the logged in user<br></p>
+</td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T22.56.55image.png.webp?alt=media&token=0016fb1b-7989-46eb-b626-fd1c4be5c432"/></td></tr>
+<tr><td> <em>Caption:</em> <p>Name in ascending order Filter<br></p>
+</td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T22.58.14image.png.webp?alt=media&token=2af993eb-e97a-4b67-9976-9e9aa41e7f76"/></td></tr>
+<tr><td> <em>Caption:</em> <p>Clear association code<br></p>
+</td></tr>
 </table></td></tr>
 <tr><td> <em>Sub-Task 2: </em> Add pull request(s) url</td></tr>
-<tr><td>Not provided</td></tr>
+<tr><td> <a rel="noreferrer noopener" target="_blank" href="https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51">https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51</a> </td></tr>
 </table></td></tr>
-<table><tr><td> <em>Deliverable 3: </em> List entities associated with users </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707795-a9c94a71-7871-4572-bfae-ad636f8f8474.png"></td></tr>
+<table><tr><td> <em>Deliverable 3: </em> List entities associated with users </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707773-e6aef7cb-d5b2-4053-bbb1-b09fc609041e.png"></td></tr>
 <tr><td><table><tr><td> <em>Sub-Task 1: </em> Show a page that lists entities that are associated with at least 1 user</td></tr>
-<tr><td><table><tr><td>Missing Image</td></tr>
-<tr><td> <em>Caption:</em> (missing)</td></tr>
+<tr><td><table><tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T23.01.02image.png.webp?alt=media&token=803ca792-95c7-426f-974d-47c0b2a20437"/></td></tr>
+<tr><td> <em>Caption:</em> <p>Admin having access to List entities associated with users<br></p>
+</td></tr>
 </table></td></tr>
 <tr><td> <em>Sub-Task 2: </em> Add pull request(s) url</td></tr>
-<tr><td>Not provided</td></tr>
+<tr><td> <a rel="noreferrer noopener" target="_blank" href="https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51">https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51</a> </td></tr>
 </table></td></tr>
-<table><tr><td> <em>Deliverable 4: </em> Admin Association Page </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707795-a9c94a71-7871-4572-bfae-ad636f8f8474.png"></td></tr>
+<table><tr><td> <em>Deliverable 4: </em> Admin Association Page </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707773-e6aef7cb-d5b2-4053-bbb1-b09fc609041e.png"></td></tr>
 <tr><td><table><tr><td> <em>Sub-Task 1: </em> Admin page to search for users and entities</td></tr>
-<tr><td><table><tr><td>Missing Image</td></tr>
-<tr><td> <em>Caption:</em> (missing)</td></tr>
+<tr><td><table><tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T23.03.33image.png.webp?alt=media&token=aba8f55c-7086-45d4-911a-6a011b7d013e"/></td></tr>
+<tr><td> <em>Caption:</em> <p>Manage Association Page (Admin Can Add/remove Association for a User)<br></p>
+</td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T23.05.12image.png.webp?alt=media&token=904e7030-664d-40b7-94ba-b628968ac687"/></td></tr>
+<tr><td> <em>Caption:</em> <p>Code for the implemented logic<br></p>
+</td></tr>
 </table></td></tr>
 <tr><td> <em>Sub-Task 2: </em> Add pull request(s) url</td></tr>
-<tr><td>Not provided</td></tr>
+<tr><td> <a rel="noreferrer noopener" target="_blank" href="https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51">https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51</a> </td></tr>
 </table></td></tr>
-<table><tr><td> <em>Deliverable 5: </em> Project Related Screens not yet shown </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707795-a9c94a71-7871-4572-bfae-ad636f8f8474.png"></td></tr>
+<table><tr><td> <em>Deliverable 5: </em> Project Related Screens not yet shown </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707773-e6aef7cb-d5b2-4053-bbb1-b09fc609041e.png"></td></tr>
 <tr><td><table><tr><td> <em>Sub-Task 1: </em> Add screenshots of other pages not yet shown</td></tr>
-<tr><td><table><tr><td>Missing Image</td></tr>
-<tr><td> <em>Caption:</em> (missing)</td></tr>
+<tr><td><table><tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T23.06.52image.png.webp?alt=media&token=b2131258-7daf-45d1-9e9c-9363cbfaa50c"/></td></tr>
+<tr><td> <em>Caption:</em> <p>The &quot;Fetch Screen&quot; serves the purpose of allowing users to retrieve detailed information<br>about a football team from an external API. Users can input the team&#39;s<br>name in the provided form, and upon submission, the application fetches and displays<br>relevant data from the API, providing users with the latest details about the<br>specified players..<br></p>
+</td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T23.09.56image.png.webp?alt=media&token=20bb1385-914d-486e-8f02-fcd246666ff3"/></td></tr>
+<tr><td> <em>Caption:</em> <p>The &quot;Add Screen&quot; functions as a form for users to input information and<br>add a new player to the application&#39;s database. Users can provide details such<br>as the player_id, name, team_name, face image id. Upon submission, the form validates<br>the input and adds the players record to the database, providing feedback messages<br>to the user regarding the success or failure of the operation.<br></p>
+</td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T23.11.42image.png.webp?alt=media&token=e73d547d-537a-4aaa-8b61-ef684486c023"/></td></tr>
+<tr><td> <em>Caption:</em> <p>The player screen serves as a comprehensive view of players, providing<br>users with a<br>list of teams and associated details. Users can track teams,<br>view their information, edit<br>existing records, or delete entries. This screen facilitates efficient<br>team management and offers a<br>clear overview, enhancing user engagement with the players data.<br></p>
+</td></tr>
+<tr><td><img width="768px" src="https://firebasestorage.googleapis.com/v0/b/learn-e1de9.appspot.com/o/assignments%2Fzm254%2F2023-12-14T23.13.02image.png.webp?alt=media&token=28d405bc-177f-4dd8-a866-713750464f7f"/></td></tr>
+<tr><td> <em>Caption:</em> <p>Display a list of players that the current user has not watched, allowing<br>users to explore and potentially add players to their watchlist. The page<br>provides filtering<br>options based on player_id, name, team_name, imageid for a<br>personalized viewing experience.<br></p>
+</td></tr>
 </table></td></tr>
 <tr><td> <em>Sub-Task 2: </em> Explain each screen shown above</td></tr>
-<tr><td> <em>Response:</em> <p>(missing)</p><br></td></tr>
+<tr><td> <em>Response:</em> <div><span style="font-size: 14px;">Fetch Screen:</span></div><div><span style="font-size: 14px;">Purpose: Allows the user to fetch Players data<br>from an external&nbsp;</span>API by entering the players name.</div><div><span style="font-size: 14px;">High-Level Logic:</span></div><div><span style="font-size: 14px;">Utilizes<br>a form to input the team</span></div><div><span style="font-size: 14px;">name.</span>Calls the API using the entered<br>name. Validates and processes the API response.</div><div><span style="font-size: 14px;">Inserts or&nbsp;</span>updates the team record<br>in the database.</div><div><span style="font-size: 14px;"><br></span></div><div><span style="font-size: 14px;">Add Screen:</span></div><div><span style="font-size: 14px;">Purpose: Enables the user<br>to manually&nbsp;</span>add a player to the database.</div><div><span style="font-size: 14px;">High-Level Logic:</span></div><div><span style="font-size: 14px;">Validates the<br>form input for player&nbsp;</span>details.</div><div><span style="font-size: 14px;">Checks for the existence of the player in<br>the database.</span></div><div><span style="font-size: 14px;">Inserts a new player</span></div><div><span style="font-size: 14px;">Displays success or error messages.</span></div><div><span<br>style="font-size: 14px;"><br></span></div><div><span style="font-size: 14px;">Player List Screen:</span></div><div><span style="font-size: 14px;">Purpose:</span></div><div><span style="font-size: 14px;">Displays a list of<br>players with various filtering options.</span></div><div><span style="font-size: 14px;">High-Level Logic:</span></div><div><span style="font-size: 14px;">Retrieves players data&nbsp;</span>from the<br>database based on applied filters.</div><div><span style="font-size: 14px;">Allows sorting, limiting, and filtering by player_id,<br>name, team_name , face_image_id</span></div><div><span style="font-size: 14px;">Displays the list with relevant information.&nbsp;</span>Handles errors and<br>provides flash messages.</div><div><span style="font-size: 14px;"><br></span></div><div><span style="font-size: 14px;">View/Edit Screen:</span></div><div><span style="font-size: 14px;">Purpose: Shows detailed information<br>about a specific player and allows editing.</span></div><div><span style="font-size: 14px;">High-Level</span></div><div><span style="font-size: 14px;">Logic:</span></div><div><span style="font-size: 14px;">Fetches<br>team details from the database based on the player name.</span></div><div><span style="font-size: 14px;">Renders the<br>information&nbsp;</span>in a readable format. Enables editing and validates changes. Updates the database with<br>edited information.</div><div><span style="font-size: 14px;"><br></span></div><div><span style="font-size: 14px;">Unwatched</span></div><div><span style="font-size: 14px;">Screen:</span></div><div><span style="font-size: 14px;">Purpose: Lists player that<br>the current user has not watched.</span></div><div><span style="font-size: 14px;">High-Level Logic:</span></div><div><span style="font-size: 14px;">Retrieves players&nbsp;</span>not present<br>in the user's watchlist from the database.</div><div><span style="font-size: 14px;">Applies filters for player_id, name,<br>team_name , face_image_id.</span>Displays the list with an option to watch the teams.</div><div><span style="font-size:<br>14px;"><br></span></div><div><span style="font-size: 14px;">Watchlist Screen:</span></div><div><span style="font-size: 14px;">Purpose:</span></div><div><span style="font-size: 14px;">Displays the user's watchlist of football<br>teams.</span></div><div><span style="font-size: 14px;">High-Level Logic:</span></div><div><span style="font-size: 14px;">Retrieves players associated with the user&nbsp;</span>from the watchlist.</div><div><span<br>style="font-size: 14px;">Allows sorting, limiting, and filtering by player_id,name,team_name, face_image_id.</span></div><div><span style="font-size: 14px;">Provides&nbsp;</span>options to unwatch<br>players.</div><br></td></tr>
 <tr><td> <em>Sub-Task 3: </em> Add pull request(s) url</td></tr>
-<tr><td>Not provided</td></tr>
+<tr><td> <a rel="noreferrer noopener" target="_blank" href="https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51">https://github.com/zahooruddinmohammed/zm254-is601-007/pull/51</a> </td></tr>
 </table></td></tr>
-<table><tr><td> <em>Deliverable 6: </em> Misc </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707795-a9c94a71-7871-4572-bfae-ad636f8f8474.png"></td></tr>
+<table><tr><td> <em>Deliverable 6: </em> Misc </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="https://user-images.githubusercontent.com/54863474/211707773-e6aef7cb-d5b2-4053-bbb1-b09fc609041e.png"></td></tr>
 <tr><td><table><tr><td> <em>Sub-Task 1: </em> Describe any issues and learnings throughout this milestone</td></tr>
-<tr><td> <em>Response:</em> <p>(missing)</p><br></td></tr>
+<tr><td> <em>Response:</em> <div>the problem in sending data between html&nbsp;file and python through render template function,<br>many others which were helped from professor's Quick Check&nbsp;Video and was able to<br>implement everything successfully.&nbsp;</div><br></td></tr>
 </table></td></tr>
 <table><tr><td><em>Grading Link: </em><a rel="noreferrer noopener" href="https://learn.ethereallab.app/homework/IS601-007-F23/is601-milestone-3-api-project/grade/zm254" target="_blank">Grading</a></td></tr></table>
