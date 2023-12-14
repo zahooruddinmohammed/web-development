@@ -8,22 +8,23 @@
         {% for field in form %}
             {% if field.name != 'csrf_token' %}
                 <div class="form-group">
-                    <label for="{{ field.id }}" class="font-weight-bold">{{ field.label | safe }}</label>
+                    <label for="{{ field.id }}">{{ field.label}}</label>
                     {% if field.type == 'TextAreaField' %}
-                        <textarea class="form-control {% if field.errors %} is-invalid {% endif %}" id="{{ field.id }}" name="{{ field.name }}" placeholder="">{{ field.data or "" }}</textarea>
+                    <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}">{{ field.data or "" }}</textarea>
                     {% else %}
-                        <input class="form-control {% if field.errors %}is-invalid{% endif %}" id="{{ field.id }}" name="{{ field.name }}" type="{{ field.type }}" value="{{ field.data or '' }}" placeholder="">
+                    <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" type="{{ field.type }}"
+                        value="{{ field.data or ''}}">
                     {% endif %}
                     {% if field.errors %}
-                        <div class="invalid-feedback">
-                            {{ ', '.join(field.errors) }}
-                        </div>
+                    <div class="invalid-feedback">
+                        {{ ', '.join(field.errors) }}
+                    </div>
                     {% endif %}
                 </div>
-            {% endif %}
-        {% endfor %}
-        {{ form.hidden_tag() }}
-        <button type="submit" class="btn btn-primary mt-3">Save</button>
-    </form>
-</div>
-{% endblock %}
+                {% endif %}
+                {% endfor %}
+                {{ form.hidden_tag() }}
+                <button type="submit" class="btn btn-primary mt-3">Save</button>
+            </form>
+        </div>
+        {% endblock %}
