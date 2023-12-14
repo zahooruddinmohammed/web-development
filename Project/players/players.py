@@ -143,10 +143,10 @@ def edit():
 
 
 @players.route("/list", methods=["GET"])
-@admin_permission.require(http_exception=403)
+#@admin_permission.require(http_exception=403)
 def list():
     form = PlayerSearchForm(request.args)
-    allowed_columns = ["player_id","name", "team_name", "face_image_id","source","created", "modified"]
+    allowed_columns = ["player_id","name", "team_name", "face_image_id","source"]
     form.sort.choices = [(k, k) for k in allowed_columns]
     
     query = """SELECT id, player_id, name, team_name, face_image_id, source,
@@ -262,7 +262,7 @@ def track():
                 print(f"Should just be a dub exception and can be ignored {e}")
                 result = DB.delete("DELETE FROM IS601_fvrt WHERE player_fvrt_id =%(player_fvrt_id)s AND user_id=%(user_id)s",params)
                 if result.status:
-                    flash("Removed player form your fvrt list","success")
+                    flash("Removed player form your watchlist","success")
         except Exception as e:
             print(f"Error doing something with track/untrack{e}")
             flash("An unhandled error occured please try again","danger") 
@@ -284,7 +284,7 @@ def track():
 def watchlist():
     id = request.args.get("id", current_user.id)
     form = PlayerSearchForm(request.args)
-    allowed_columns = ["player_id","name", "team_name", "face_image_id","source","created", "modified"]
+    allowed_columns = ["player_id","name", "team_name", "face_image_id","source"]
     form.sort.choices = [(k, k) for k in allowed_columns]
     query = """
     SELECT t.id, player_id ,name, team_name, face_image_id, source, 
@@ -358,11 +358,11 @@ def clear():
 def associations():
     
     form = AdminPlayerSearchForm(request.args)
-    allowed_columns = ["player_id","name", "team_name", "face_image_id","source","created", "modified"]
+    allowed_columns = ["player_id","name", "team_name", "face_image_id","source"]
     form.sort.choices = [(k, k) for k in allowed_columns]
     query = """
     SELECT u.id as user_id, username, c.id, player_id,name, team_name, face_image_id, source
-    FROM IS601_Players c JOIN IS601_WatchList w ON c.id = w.player_fvrt_id LEFT JOIN IS601_Users u on u.id = w.user_id
+    FROM IS601_Players c JOIN IS601_fvrt w ON c.id = w.player_fvrt_id LEFT JOIN IS601_Users u on u.id = w.user_id
     WHERE 1=1
     """
     args = {}
@@ -409,12 +409,13 @@ def associations():
 @login_required
 def unwatched():
     form = PlayerSearchForm(request.args)
-    allowed_columns = ["player_id","name", "team_name", "face_image_id","source","created", "modified"]
+    allowed_columns = ["player_id","name", "team_name", "face_image_id","source"]
     form.sort.choices = [(k, k) for k in allowed_columns]
     query = """
     SELECT c.id,player_id, name, team_name ,face_image_id,
     IFNULL((SElECT count(1) FROM IS601_fvrt WHERE user_id = %(user_id)s and player_fvrt_id = c.id), 0) as 'is_assoc' 
-    FROM IS601_Players c WHERE c.id not in (SELECT DISTINCT player_fvrt_id FROM IS601_fvrt)
+    FROM IS601_Players c 
+    WHERE c.id not in (SELECT DISTINCT player_fvrt_id FROM IS601_fvrt)
     """
     args = {"user_id": current_user.id}
     where = ""
@@ -444,7 +445,7 @@ def unwatched():
         args["limit"] = limit
         where += " LIMIT %(limit)s"
     
-    result = DB.selectAll(query+where, args)
+    result = DB.selectAll(query + where, args)
     rows = []
     
     if result.status and result.rows:

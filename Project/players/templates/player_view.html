@@ -35,19 +35,10 @@
         </div>
 
 <div class="card-body">
-    <dl class="row">
-        <dt class="col-sm-3">Player ID</dt>
-        <dd class="col-sm-9">{{ player.player_id }}</dd>
-  
-        <dt class="col-sm-3">Name</dt>
-        <dd class="col-sm-9">{{ player.name }}</dd>
-  
-        <dt class="col-sm-3">Team Name</dt>
-        <dd class="col-sm-9">{{ player.team_name }}</dd>
-  
-        <dt class="col-sm-3">Face Image ID</dt>
-        <dd class="col-sm-9">{{ player.face_image_id }}</dd>
-    </dl>
+    <div class="card-title">{{ player.name }} (Code: {{ player.code }})</div>
+    <div class="card-text">Player_id: {{ player.player_id }}</div>
+    <div class="card-text">team_name: {{ player.team_name }}</div>
+    <div class="card-text">face_image_id: {{ player.face_image_id }}</div>
 </div>
 <div class="card-footer text-muted">
     <a href="{{ url_for('players.list') }}" class="btn btn-primary">Back</a>

@@ -42,37 +42,34 @@
                         href="{{url_for('players.unwatched')}}"> Player
                         Unwatched</a>
                 </li>
-                <!-- samples nav -->
-                <!-- {% set samples = [
-                ("sample.add", "Add"),
-                ("sample.list", "List"),
-                ] %} -->
-                 
                 <!-- roles nav (requires admin )-->
                 {% if current_user.has_role("Admin") %}
                 {% set roles = [
                 ("roles.add", "Add"),
                 ("roles.list", "List"),
                 ("roles.assign", "Assign")
-                ] %} 
+                ] %}
 
                 {{dropdown_nav("Roles", roles)}}
                 <!-- players nav (requires admin )-->
 
                 {% set players = [
-                ("players.fetch", "Fetch"),
-                ("players.add", "Add"),
-                ("players.list", "List"),
-                ] %}
+                                ("players.fetch", "Fetch"),
+                                ("players.add", "Add"),
+                                ("players.associations", "Associations"),
+                                ("players.manage", "Manage Associations")
+                                ] %}
                 {{dropdown_nav("players", players)}}
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link"
                         href="{{url_for('auth.logout')}}">Logout</a>
                 </li>
+
                 {% endif %}
 
             </ul>
+
         </div>
     </div>
 </nav>
